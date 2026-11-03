@@ -1,0 +1,10 @@
+target/
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+.env
+.idea/
+.vscode/
+*.iml
