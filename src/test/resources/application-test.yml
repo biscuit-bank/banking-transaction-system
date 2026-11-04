@@ -1,0 +1,17 @@
+spring:
+    datasource:
+        url: jdbc:sqlite:target/test-bank.db?journal_mode=WAL&busy_timeout=5000&foreign_keys=ON
+        driver-class-name: org.sqlite.JDBC
+        hikari:
+            maximum-pool-size: 1
+            minimum-idle: 1
+
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+        show-sql: false
+
+bank:
+    lockout:
+        max-failed-attempts: 5
+        duration-minutes: 15
