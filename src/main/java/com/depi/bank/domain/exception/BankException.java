@@ -1,4 +1,4 @@
-package com.depi.bank.exception;
+package com.depi.bank.domain.exception;
 
 public class BankException extends RuntimeException {
 
