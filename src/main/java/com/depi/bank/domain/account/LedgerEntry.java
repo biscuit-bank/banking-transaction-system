@@ -46,6 +46,59 @@ public class LedgerEntry {
         return entry;
     }
 
+    public static LedgerEntry withdrawal(UUID accountId, BigDecimal amount, BigDecimal balanceAfter, String currency) {
+        LedgerEntry entry = new LedgerEntry();
+        entry.accountId = accountId;
+        entry.type = TransactionType.WITHDRAWAL;
+        entry.amount = amount;
+        entry.balanceAfter = balanceAfter;
+        entry.currency = currency;
+        entry.createdAt = Instant.now();
+        return entry;
+    }
+
+    public static LedgerEntry transferOut(UUID accountId, BigDecimal amount, BigDecimal balanceAfter, String currency) {
+        LedgerEntry entry = new LedgerEntry();
+        entry.accountId = accountId;
+        entry.type = TransactionType.TRANSFER_OUT;
+        entry.amount = amount;
+        entry.balanceAfter = balanceAfter;
+        entry.currency = currency;
+        entry.createdAt = Instant.now();
+        return entry;
+    }
+
+    public static LedgerEntry transferIn(UUID accountId, BigDecimal amount, BigDecimal balanceAfter, String currency) {
+        LedgerEntry entry = new LedgerEntry();
+        entry.accountId = accountId;
+        entry.type = TransactionType.TRANSFER_IN;
+        entry.amount = amount;
+        entry.balanceAfter = balanceAfter;
+        entry.currency = currency;
+        entry.createdAt = Instant.now();
+        return entry;
+    }
+
+    public static LedgerEntry interest(UUID accountId, BigDecimal amount, BigDecimal balanceAfter, String currency) {
+        return interest(accountId, amount, balanceAfter, currency, Instant.now());
+    }
+
+    /**
+     * Creates an INTEREST entry with an explicit timestamp so scheduled jobs can use the
+     * injected {@link java.time.Clock} instead of the JVM clock (NFR-05).
+     */
+    public static LedgerEntry interest(UUID accountId, BigDecimal amount, BigDecimal balanceAfter,
+                                       String currency, Instant createdAt) {
+        LedgerEntry entry = new LedgerEntry();
+        entry.accountId = accountId;
+        entry.type = TransactionType.INTEREST;
+        entry.amount = amount;
+        entry.balanceAfter = balanceAfter;
+        entry.currency = currency;
+        entry.createdAt = createdAt;
+        return entry;
+    }
+
     public UUID getId() {
         return id;
     }
