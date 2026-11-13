@@ -39,6 +39,22 @@ public class Account {
     @Column(nullable = false, precision = 5, scale = 4)
     private BigDecimal annualInterestRate;
 
+    @Column(precision = 19, scale = 2)
+    private BigDecimal principalAmount;
+
+    private Integer termMonths;
+
+    private Instant maturityDate;
+
+    private Instant maturityInterestCreditedAt;
+
+    /**
+     * Calendar month (yyyy-MM) for which monthly savings interest was last credited.
+     * Used as a per-account idempotency guard for JOB-01 / BR-08.
+     */
+    @Column(length = 7)
+    private String lastInterestMonth;
+
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -59,6 +75,18 @@ public class Account {
     public void setCurrency(String currency) { this.currency = currency; }
     public BigDecimal getAnnualInterestRate() { return annualInterestRate; }
     public void setAnnualInterestRate(BigDecimal annualInterestRate) { this.annualInterestRate = annualInterestRate; }
+    public BigDecimal getPrincipalAmount() { return principalAmount; }
+    public void setPrincipalAmount(BigDecimal principalAmount) { this.principalAmount = principalAmount; }
+    public Integer getTermMonths() { return termMonths; }
+    public void setTermMonths(Integer termMonths) { this.termMonths = termMonths; }
+    public Instant getMaturityDate() { return maturityDate; }
+    public void setMaturityDate(Instant maturityDate) { this.maturityDate = maturityDate; }
+    public Instant getMaturityInterestCreditedAt() { return maturityInterestCreditedAt; }
+    public void setMaturityInterestCreditedAt(Instant maturityInterestCreditedAt) {
+        this.maturityInterestCreditedAt = maturityInterestCreditedAt;
+    }
+    public String getLastInterestMonth() { return lastInterestMonth; }
+    public void setLastInterestMonth(String lastInterestMonth) { this.lastInterestMonth = lastInterestMonth; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }
