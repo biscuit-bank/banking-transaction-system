@@ -7,6 +7,7 @@ import com.depi.bank.exception.ErrorCode;
 import com.depi.bank.repository.AccountRepository;
 import com.depi.bank.service.CheckingWithdrawalService;
 import com.depi.bank.service.DepositService;
+import com.depi.bank.service.FixedDepositWithdrawalService;
 import com.depi.bank.service.OwnAccountTransferService;
 import com.depi.bank.service.SavingsWithdrawalService;
 import jakarta.validation.Valid;
@@ -30,17 +31,20 @@ public class TransactionController {
     private final DepositService depositService;
     private final CheckingWithdrawalService checkingWithdrawalService;
     private final SavingsWithdrawalService savingsWithdrawalService;
+    private final FixedDepositWithdrawalService fixedDepositWithdrawalService;
     private final AccountRepository accountRepository;
     private final OwnAccountTransferService ownAccountTransferService;
 
     public TransactionController(DepositService depositService,
                                  CheckingWithdrawalService checkingWithdrawalService,
                                  SavingsWithdrawalService savingsWithdrawalService,
+                                 FixedDepositWithdrawalService fixedDepositWithdrawalService,
                                  AccountRepository accountRepository,
                                  OwnAccountTransferService ownAccountTransferService) {
         this.depositService = depositService;
         this.checkingWithdrawalService = checkingWithdrawalService;
         this.savingsWithdrawalService = savingsWithdrawalService;
+        this.fixedDepositWithdrawalService = fixedDepositWithdrawalService;
         this.accountRepository = accountRepository;
         this.ownAccountTransferService = ownAccountTransferService;
     }
@@ -104,6 +108,8 @@ public class TransactionController {
         Account account;
         if (existing.getType() == AccountType.SAVINGS) {
             account = savingsWithdrawalService.withdraw(request.accountNumber(), request.amountEgp());
+        } else if (existing.getType() == AccountType.FIXED_DEPOSIT) {
+            account = fixedDepositWithdrawalService.withdraw(request.accountNumber(), request.amountEgp());
         } else {
             account = checkingWithdrawalService.withdraw(request.accountNumber(), request.amountEgp());
         }

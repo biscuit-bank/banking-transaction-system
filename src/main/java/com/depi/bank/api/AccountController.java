@@ -42,7 +42,8 @@ public class AccountController {
 
     public record OpenAccountRequest(
             @NotNull AccountType accountType,
-            @NotNull @DecimalMin("0.00") BigDecimal openingDepositEgp
+            @NotNull @DecimalMin("0.00") BigDecimal openingDepositEgp,
+            Integer termMonths
     ) {}
 
     public record AccountResponse(
@@ -52,7 +53,9 @@ public class AccountController {
             String status,
             BigDecimal balance,
             String currency,
-            BigDecimal annualInterestRate
+            BigDecimal annualInterestRate,
+            Integer termMonths,
+            java.time.Instant maturityDate
     ) {}
 
     public record CloseAccountResponse(
@@ -75,9 +78,11 @@ public class AccountController {
         } else if (request.accountType() == AccountType.CURRENT
                 || request.accountType() == AccountType.CHECKING) {
             account = accountOpeningService.openCheckingAccount(customerId, openingDeposit);
+        } else if (request.accountType() == AccountType.FIXED_DEPOSIT) {
+            account = accountOpeningService.openFixedDepositAccount(customerId, openingDeposit, request.termMonths());
         } else {
             throw new BankException(ErrorCode.VALIDATION_ERROR,
-                    "Only Savings and Checking accounts can be opened through this endpoint.");
+                    "Unsupported account type.");
         }
 
         return toResponse(account);
@@ -108,7 +113,9 @@ public class AccountController {
                 account.getStatus().name(),
                 account.getBalance(),
                 account.getCurrency(),
-                account.getAnnualInterestRate());
+                account.getAnnualInterestRate(),
+                account.getTermMonths(),
+                account.getMaturityDate());
     }
 
     private UUID resolveCustomerId(Authentication authentication) {
