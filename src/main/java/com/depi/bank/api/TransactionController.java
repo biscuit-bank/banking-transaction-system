@@ -1,9 +1,14 @@
 package com.depi.bank.api;
 
 import com.depi.bank.domain.account.Account;
+import com.depi.bank.domain.account.AccountType;
+import com.depi.bank.exception.BankException;
+import com.depi.bank.exception.ErrorCode;
+import com.depi.bank.repository.AccountRepository;
 import com.depi.bank.service.CheckingWithdrawalService;
 import com.depi.bank.service.DepositService;
 import com.depi.bank.service.OwnAccountTransferService;
+import com.depi.bank.service.SavingsWithdrawalService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -24,13 +29,19 @@ public class TransactionController {
 
     private final DepositService depositService;
     private final CheckingWithdrawalService checkingWithdrawalService;
+    private final SavingsWithdrawalService savingsWithdrawalService;
+    private final AccountRepository accountRepository;
     private final OwnAccountTransferService ownAccountTransferService;
 
     public TransactionController(DepositService depositService,
                                  CheckingWithdrawalService checkingWithdrawalService,
+                                 SavingsWithdrawalService savingsWithdrawalService,
+                                 AccountRepository accountRepository,
                                  OwnAccountTransferService ownAccountTransferService) {
         this.depositService = depositService;
         this.checkingWithdrawalService = checkingWithdrawalService;
+        this.savingsWithdrawalService = savingsWithdrawalService;
+        this.accountRepository = accountRepository;
         this.ownAccountTransferService = ownAccountTransferService;
     }
 
@@ -88,7 +99,14 @@ public class TransactionController {
     @PostMapping("/withdraw")
     @ResponseStatus(HttpStatus.CREATED)
     public WithdrawResponse withdraw(@Valid @RequestBody WithdrawRequest request) {
-        Account account = checkingWithdrawalService.withdraw(request.accountNumber(), request.amountEgp());
+        Account existing = accountRepository.findByAccountNumber(request.accountNumber())
+                .orElseThrow(() -> new BankException(ErrorCode.ACCOUNT_NOT_FOUND));
+        Account account;
+        if (existing.getType() == AccountType.SAVINGS) {
+            account = savingsWithdrawalService.withdraw(request.accountNumber(), request.amountEgp());
+        } else {
+            account = checkingWithdrawalService.withdraw(request.accountNumber(), request.amountEgp());
+        }
         return new WithdrawResponse(
                 account.getAccountNumber(),
                 request.amountEgp().setScale(2, RoundingMode.HALF_EVEN),
