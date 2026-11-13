@@ -94,6 +94,21 @@ public class LedgerEntry {
         return entry;
     }
 
+    public static LedgerEntry fee(UUID accountId, BigDecimal amount, BigDecimal balanceAfter, String currency) {
+        return fee(accountId, amount, balanceAfter, currency, Instant.now());
+    }
+
+    public static LedgerEntry fee(UUID accountId, BigDecimal amount, BigDecimal balanceAfter, String currency, Instant createdAt) {
+        LedgerEntry entry = new LedgerEntry();
+        entry.accountId = accountId;
+        entry.type = TransactionType.FEE;
+        entry.amount = amount;
+        entry.balanceAfter = balanceAfter;
+        entry.currency = currency;
+        entry.createdAt = createdAt;
+        return entry;
+    }
+
     public static LedgerEntry interest(UUID accountId, BigDecimal amount, BigDecimal balanceAfter, String currency) {
         return interest(accountId, amount, balanceAfter, currency, Instant.now());
     }

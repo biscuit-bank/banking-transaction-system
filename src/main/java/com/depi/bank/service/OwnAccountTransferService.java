@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Instant;
 
 @Service
 public class OwnAccountTransferService {
@@ -54,6 +55,8 @@ public class OwnAccountTransferService {
         validateActive(source);
         validateActive(destination);
 
+        validateFixedDepositSource(source, amount);
+
         BigDecimal sourceAfter = source.getBalance().subtract(amount).setScale(2, RoundingMode.HALF_EVEN);
         validateSourceBalance(source, sourceAfter);
 
@@ -79,6 +82,20 @@ public class OwnAccountTransferService {
         }
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new BankException(ErrorCode.ACCOUNT_NOT_ACTIVE);
+        }
+    }
+
+    private void validateFixedDepositSource(Account source, BigDecimal amount) {
+        if (source.getType() != AccountType.FIXED_DEPOSIT) {
+            return;
+        }
+        Instant now = Instant.now();
+        if (source.getMaturityDate() == null || now.isBefore(source.getMaturityDate())
+                || source.getMaturityInterestCreditedAt() == null) {
+            throw new BankException(ErrorCode.FD_NOT_MATURE);
+        }
+        if (amount.compareTo(source.getBalance()) != 0) {
+            throw new BankException(ErrorCode.FD_PARTIAL_WITHDRAWAL_NOT_ALLOWED);
         }
     }
 
