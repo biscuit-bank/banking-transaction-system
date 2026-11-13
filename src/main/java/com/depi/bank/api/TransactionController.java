@@ -2,6 +2,7 @@ package com.depi.bank.api;
 
 import com.depi.bank.domain.account.Account;
 import com.depi.bank.service.CheckingWithdrawalService;
+import com.depi.bank.service.OwnAccountTransferService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -16,17 +17,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * US-13: checking-account withdrawal with overdraft and velocity limits.
- */
 @RestController
 @RequestMapping("/api/v1/transactions")
 public class TransactionController {
 
     private final CheckingWithdrawalService checkingWithdrawalService;
+    private final OwnAccountTransferService ownAccountTransferService;
 
-    public TransactionController(CheckingWithdrawalService checkingWithdrawalService) {
+    public TransactionController(CheckingWithdrawalService checkingWithdrawalService,
+                                 OwnAccountTransferService ownAccountTransferService) {
         this.checkingWithdrawalService = checkingWithdrawalService;
+        this.ownAccountTransferService = ownAccountTransferService;
     }
 
     public record WithdrawRequest(
@@ -41,6 +42,21 @@ public class TransactionController {
             String currency
     ) {}
 
+    public record OwnTransferRequest(
+            @NotBlank String sourceAccountNumber,
+            @NotBlank String destinationAccountNumber,
+            @NotNull @DecimalMin(value = "0.01") BigDecimal amountEgp
+    ) {}
+
+    public record OwnTransferResponse(
+            String sourceAccountNumber,
+            String destinationAccountNumber,
+            BigDecimal amountEgp,
+            BigDecimal feeEgp,
+            BigDecimal sourceBalanceAfter,
+            BigDecimal destinationBalanceAfter
+    ) {}
+
     @PostMapping("/withdraw")
     @ResponseStatus(HttpStatus.CREATED)
     public WithdrawResponse withdraw(@Valid @RequestBody WithdrawRequest request) {
@@ -50,6 +66,24 @@ public class TransactionController {
                 request.amountEgp().setScale(2, RoundingMode.HALF_EVEN),
                 account.getBalance(),
                 account.getCurrency()
+        );
+    }
+
+    @PostMapping("/transfer-own")
+    @ResponseStatus(HttpStatus.CREATED)
+    public OwnTransferResponse transferOwn(@Valid @RequestBody OwnTransferRequest request) {
+        OwnAccountTransferService.TransferResult result = ownAccountTransferService.transfer(
+                request.sourceAccountNumber(),
+                request.destinationAccountNumber(),
+                request.amountEgp()
+        );
+        return new OwnTransferResponse(
+                request.sourceAccountNumber(),
+                request.destinationAccountNumber(),
+                request.amountEgp().setScale(2, RoundingMode.HALF_EVEN),
+                result.feeEgp(),
+                result.sourceBalanceAfter(),
+                result.destinationBalanceAfter()
         );
     }
 }
