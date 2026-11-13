@@ -46,6 +46,21 @@ public class LedgerEntry {
         return entry;
     }
 
+    /**
+     * Creates a DEPOSIT entry for a cash deposit, preserving the account's running balance.
+     */
+    public static LedgerEntry deposit(UUID accountId, BigDecimal amount, BigDecimal balanceAfter,
+                                      String currency, Instant createdAt) {
+        LedgerEntry entry = new LedgerEntry();
+        entry.accountId = accountId;
+        entry.type = TransactionType.DEPOSIT;
+        entry.amount = amount;
+        entry.balanceAfter = balanceAfter;
+        entry.currency = currency;
+        entry.createdAt = createdAt;
+        return entry;
+    }
+
     public static LedgerEntry withdrawal(UUID accountId, BigDecimal amount, BigDecimal balanceAfter, String currency) {
         LedgerEntry entry = new LedgerEntry();
         entry.accountId = accountId;

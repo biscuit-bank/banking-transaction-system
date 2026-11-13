@@ -2,6 +2,7 @@ package com.depi.bank.api;
 
 import com.depi.bank.domain.account.Account;
 import com.depi.bank.service.CheckingWithdrawalService;
+import com.depi.bank.service.DepositService;
 import com.depi.bank.service.OwnAccountTransferService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -21,14 +22,29 @@ import java.math.RoundingMode;
 @RequestMapping("/api/v1/transactions")
 public class TransactionController {
 
+    private final DepositService depositService;
     private final CheckingWithdrawalService checkingWithdrawalService;
     private final OwnAccountTransferService ownAccountTransferService;
 
-    public TransactionController(CheckingWithdrawalService checkingWithdrawalService,
+    public TransactionController(DepositService depositService,
+                                 CheckingWithdrawalService checkingWithdrawalService,
                                  OwnAccountTransferService ownAccountTransferService) {
+        this.depositService = depositService;
         this.checkingWithdrawalService = checkingWithdrawalService;
         this.ownAccountTransferService = ownAccountTransferService;
     }
+
+    public record DepositRequest(
+            @NotBlank String accountNumber,
+            @NotNull @DecimalMin(value = "0.01") BigDecimal amountEgp
+    ) {}
+
+    public record DepositResponse(
+            String accountNumber,
+            BigDecimal amountEgp,
+            BigDecimal balanceAfter,
+            String currency
+    ) {}
 
     public record WithdrawRequest(
             @NotBlank String accountNumber,
@@ -56,6 +72,18 @@ public class TransactionController {
             BigDecimal sourceBalanceAfter,
             BigDecimal destinationBalanceAfter
     ) {}
+
+    @PostMapping("/deposit")
+    @ResponseStatus(HttpStatus.CREATED)
+    public DepositResponse deposit(@Valid @RequestBody DepositRequest request) {
+        Account account = depositService.deposit(request.accountNumber(), request.amountEgp());
+        return new DepositResponse(
+                account.getAccountNumber(),
+                request.amountEgp().setScale(2, RoundingMode.HALF_EVEN),
+                account.getBalance(),
+                account.getCurrency()
+        );
+    }
 
     @PostMapping("/withdraw")
     @ResponseStatus(HttpStatus.CREATED)
