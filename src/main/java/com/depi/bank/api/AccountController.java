@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 /**
- * US-06: open a Savings account.
+ * US-06 / US-07: open Savings and Checking accounts.
  */
 @RestController
 @RequestMapping("/api/v1/accounts")
@@ -51,13 +51,20 @@ public class AccountController {
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponse openAccount(@Valid @RequestBody OpenAccountRequest request,
                                        Authentication authentication) {
-        if (request.accountType() != AccountType.SAVINGS) {
+        UUID customerId = resolveCustomerId(authentication);
+        BigDecimal openingDeposit = request.openingDepositEgp();
+
+        Account account;
+        if (request.accountType() == AccountType.SAVINGS) {
+            account = accountOpeningService.openSavingsAccount(customerId, openingDeposit);
+        } else if (request.accountType() == AccountType.CURRENT
+                || request.accountType() == AccountType.CHECKING) {
+            account = accountOpeningService.openCheckingAccount(customerId, openingDeposit);
+        } else {
             throw new BankException(ErrorCode.VALIDATION_ERROR,
-                    "This endpoint currently supports Savings accounts only.");
+                    "Only Savings and Checking accounts can be opened through this endpoint.");
         }
 
-        Account account = accountOpeningService.openSavingsAccount(
-                resolveCustomerId(authentication), request.openingDepositEgp());
         return toResponse(account);
     }
 

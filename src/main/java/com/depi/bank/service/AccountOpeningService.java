@@ -19,7 +19,9 @@ import java.util.UUID;
 public class AccountOpeningService {
 
     private static final BigDecimal MIN_SAVINGS_DEPOSIT = new BigDecimal("1000.00");
+    private static final BigDecimal MAX_CHECKING_OPENING = new BigDecimal("100000.00");
     private static final BigDecimal SAVINGS_ANNUAL_RATE = new BigDecimal("0.1700");
+    private static final BigDecimal CHECKING_ANNUAL_RATE = BigDecimal.ZERO;
     private static final int MAX_NON_CLOSED_ACCOUNTS = 5;
     private static final String DEFAULT_CURRENCY = "EGP";
 
@@ -45,6 +47,19 @@ public class AccountOpeningService {
         }
 
         return openAccount(customerId, AccountType.SAVINGS, initialDeposit, SAVINGS_ANNUAL_RATE, true);
+    }
+
+    @Transactional
+    public Account openCheckingAccount(UUID customerId, BigDecimal initialDeposit) {
+        validateAmountScale(initialDeposit);
+        if (initialDeposit == null
+                || initialDeposit.compareTo(BigDecimal.ZERO) < 0
+                || initialDeposit.compareTo(MAX_CHECKING_OPENING) > 0) {
+            throw new BankException(ErrorCode.INVALID_OPENING_AMOUNT);
+        }
+
+        return openAccount(customerId, AccountType.CURRENT, initialDeposit, CHECKING_ANNUAL_RATE,
+                initialDeposit.compareTo(BigDecimal.ZERO) > 0);
     }
 
     private void validateAmountScale(BigDecimal amount) {
