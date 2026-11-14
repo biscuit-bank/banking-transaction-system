@@ -76,6 +76,12 @@ bank:
   admin:
     email: ${BANK_ADMIN_EMAIL:admin@biscuitbank.eg}
     password: ${BANK_ADMIN_PASSWORD:}
+  jobs:
+    zone: Africa/Cairo
+    # JOB-01: first day of every calendar month at 00:00 Cairo time
+    savings-interest-cron: "0 0 0 1 * *"
+    # JOB-02: daily at 00:05 Cairo time, so maturity is credited on its date
+    fixed-deposit-maturity-cron: "0 5 0 * * *"
 
 ---
 # DEV Profile Configuration (Enables Swagger UI & Deterministic Demo Credentials)

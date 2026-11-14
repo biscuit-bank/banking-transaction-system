@@ -45,14 +45,21 @@ public enum ErrorCode {
     FD_NOT_MATURE(HttpStatus.UNPROCESSABLE_ENTITY, "Fixed Deposit cannot be withdrawn before its maturity date."),
     FD_PARTIAL_WITHDRAWAL_NOT_ALLOWED(HttpStatus.UNPROCESSABLE_ENTITY, "Matured Fixed Deposit must be withdrawn in full."),
     MAX_ACCOUNTS_EXCEEDED(HttpStatus.UNPROCESSABLE_ENTITY, "A customer cannot hold more than 5 non-closed accounts."),
-    NON_ZERO_BALANCE(HttpStatus.UNPROCESSABLE_ENTITY, "Account can only be closed when its balance is exactly 0.00 EGP."),
+    NON_ZERO_BALANCE_ON_CLOSE(HttpStatus.UNPROCESSABLE_ENTITY, "Account balance must be 0.00 EGP before closing."),
     ACCOUNT_NOT_ACTIVE(HttpStatus.UNPROCESSABLE_ENTITY, "Operation requires the account to be in ACTIVE status."),
     ACCOUNT_CLOSED(HttpStatus.UNPROCESSABLE_ENTITY, "This account is permanently CLOSED and cannot accept operations."),
-    ACCOUNT_FROZEN(HttpStatus.LOCKED, "This account is currently FROZEN due to an administrative hold."),
+    ACCOUNT_FROZEN(HttpStatus.UNPROCESSABLE_ENTITY, "This account is currently FROZEN due to an administrative hold."),
 
     // 429 Too Many Requests & 500 Internal Error
     RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests. Please wait before retrying."),
     TRANSFER_ATOMICITY_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, "Transaction failed and was completely rolled back.");
+
+    /**
+     * Backwards-compatible alias for the historic catalogue name used in earlier
+     * specifications. Both names resolve to the same {@code NON_ZERO_BALANCE_ON_CLOSE}
+     * error code.
+     */
+    public static final ErrorCode NON_ZERO_BALANCE = NON_ZERO_BALANCE_ON_CLOSE;
 
     private final HttpStatus httpStatus;
     private final String defaultMessage;
