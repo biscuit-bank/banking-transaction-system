@@ -72,10 +72,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/register", "/api/v1/auth/login").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                         // Strict separation of duties: ADMIN is blocked with 403 on all customer money/account endpoints (US-25, ADM-07)
-                        .requestMatchers("/api/v1/accounts", "/api/v1/accounts/**",
-                                "/api/v1/transactions", "/api/v1/transactions/**",
-                                "/api/v1/transfers", "/api/v1/transfers/**",
-                                "/api/v1/profile/**", "/api/v1/dashboard/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/v1/accounts/**", "/api/v1/transactions/**",
+                                "/api/v1/transfers/**", "/api/v1/profile/**", "/api/v1/dashboard/**").hasRole("CUSTOMER")
                         .anyRequest().denyAll() // Deny-by-default (SEC-01)
                 )
                 .httpBasic(Customizer.withDefaults())
