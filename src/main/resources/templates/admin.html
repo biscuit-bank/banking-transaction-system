@@ -1,0 +1,1948 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BTS - Core Banking Admin Portal</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#00288e",
+        "primary-container": "#1e40af",
+        "on-primary": "#ffffff",
+        secondary: "#4a5f7f",
+        "secondary-container": "#c2d8fe",
+        "on-secondary-container": "#495e7e",
+        surface: "#faf8ff",
+        "surface-container": "#eaedff",
+        "surface-container-low": "#f2f3ff",
+        "surface-container-lowest": "#ffffff",
+        "on-surface": "#131b2e",
+        "on-surface-variant": "#444653",
+        outline: "#757684",
+        "outline-variant": "#c4c5d5",
+        error: "#ba1a1a",
+        "error-container": "#ffdad6",
+        "on-error-container": "#93000a"
+      },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+        display: ["Plus Jakarta Sans", "sans-serif"]
+      }
+    }
+  }
+};
+</script>
+<style>
+@layer base {
+  html, body { margin:0; padding:0; overscroll-behavior:none; }
+}
+::-webkit-scrollbar { display:none; }
+.modal-backdrop { background: rgba(19, 27, 46, 0.45); backdrop-filter: blur(4px); }
+</style>
+</head>
+<body class="bg-surface font-sans text-on-surface antialiased flex min-h-screen">
+
+<!-- Toast Container -->
+<div id="toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+<!-- Mobile Sidebar Backdrop -->
+<div id="sidebar-backdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden"></div>
+
+<!-- Persistent Sidebar Navigation -->
+<aside id="sidebar-nav" class="fixed left-0 top-0 h-full w-72 bg-white shadow-sm z-50 flex flex-col justify-between transition-transform duration-300 -translate-x-full lg:translate-x-0 border-r border-slate-100">
+  <div class="flex flex-col">
+    <!-- Brand Header -->
+    <div class="h-20 px-6 flex items-center justify-between border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center text-white shadow-sm">
+          <span class="material-symbols-outlined text-[24px]">shield</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-display text-lg text-blue-900 tracking-tight leading-none font-bold">BTS</span>
+          <span class="text-[10px] uppercase tracking-wider text-slate-500 mt-1 font-semibold">DIGITAL BANKING PORTAL</span>
+        </div>
+      </div>
+      <button onclick="toggleMobileSidebar()" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100 lg:hidden" type="button">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+    
+    <div class="px-5 pt-6 pb-2">
+      <span class="px-2 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Management Console</span>
+    </div>
+    
+    <!-- Exact 5 Sidebar Navigation Items -->
+    <nav class="flex flex-col gap-1 px-4 mt-1" id="main-nav-links">
+      <button type="button" data-view="dashboard" onclick="switchView('dashboard')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left bg-blue-700 text-white shadow-sm font-semibold text-sm">
+        <span class="material-symbols-outlined text-[20px]">grid_view</span>
+        <span class="">Dashboard</span>
+      </button>
+      <button type="button" data-view="customers" onclick="switchView('customers')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm">
+        <span class="material-symbols-outlined text-[20px]">group</span>
+        <span class="">Customers</span>
+      </button>
+      <button type="button" data-view="accounts" onclick="switchView('accounts')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm">
+        <span class="material-symbols-outlined text-[20px]">account_balance</span>
+        <span class="">Accounts</span>
+      </button>
+      <button type="button" data-view="audit-log" onclick="switchView('audit-log')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm">
+        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+        <span class="">Audit Log</span>
+      </button>
+      <button type="button" data-view="interest-processing" onclick="switchView('interest-processing')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm">
+        <span class="material-symbols-outlined text-[20px]">percent</span>
+        <span class="">Interest Processing</span>
+      </button>
+      <button type="button" data-view="reports" onclick="switchView('reports')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm">
+        <span class="material-symbols-outlined text-[20px]">leaderboard</span>
+        <span class="">Top Customers Report</span>
+      </button>
+    </nav>
+  </div>
+  
+  <div class="p-4 border-t border-slate-100">
+    <div class="p-3 rounded-xl bg-slate-50 mb-3 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-slate-600 font-medium">Core v4.2 Stable</span>
+      </div>
+      <span class="text-slate-500 font-medium">CAIRO-DC</span>
+    </div>
+    
+    <!-- 6. Log Out Trigger -->
+    <button type="button" onclick="openLogoutModal()" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-all w-full text-left">
+      <span class="material-symbols-outlined text-[20px]">logout</span>
+      <span class="">Log Out</span>
+    </button>
+  </div>
+</aside>
+
+<!-- Main Wrapper with top padding for fixed header -->
+<div class="w-full lg:pl-72 flex flex-col flex-1 min-h-screen">
+  
+  <!-- Global Top Header Bar -->
+  <header class="fixed top-0 left-0 lg:left-72 right-0 h-20 bg-white/95 backdrop-blur-md shadow-sm z-40 flex items-center justify-between px-4 sm:px-8 border-b border-slate-100">
+    <div class="flex items-center gap-3">
+      <button onclick="toggleMobileSidebar()" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 lg:hidden" type="button">
+        <span class="material-symbols-outlined text-[24px]">menu</span>
+      </button>
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-900 text-xs font-semibold">
+        <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+        <span class="">System: Operational • Core v4.2 Live</span>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-4 sm:gap-6">
+      <button class="relative p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors" title="Notifications" type="button">
+        <span class="material-symbols-outlined text-[22px]">notifications</span>
+        <span class="absolute top-2 right-2 w-2 h-2 bg-rose-600 rounded-full ring-2 ring-white"></span>
+      </button>
+      <button class="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors" title="System Settings" type="button">
+        <span class="material-symbols-outlined text-[22px]">settings</span>
+      </button>
+      <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+      
+      <!-- Admin Profile -->
+      <div class="flex items-center gap-3">
+        <div class="flex flex-col text-right hidden sm:flex">
+          <span class="text-sm font-bold text-slate-900 leading-tight">Sherif Admin</span>
+          <span class="text-xs text-slate-500 leading-tight">Operations Manager • SysAdmin</span>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-blue-700 text-white flex items-center justify-center font-bold text-sm shadow-sm">SA</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Central Dynamic View Container -->
+  <main id="main-admin-content" class="relative pt-24 bg-slate-50/50 w-full px-4 sm:px-8 pb-16 flex-1">
+    
+    <!-- ==========================================
+         VIEW 1: DASHBOARD
+         ========================================== -->
+    <section id="view-dashboard" class="admin-view flex flex-col w-full">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 pt-2">
+        <div>
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <h1 class="font-display text-2xl font-bold text-slate-900 tracking-tight">Admin Dashboard</h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900 text-xs font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-700"></span>
+              Banking Day: 25 Oct 2026 • Live
+            </span>
+          </div>
+          <p class="text-sm text-slate-600">
+            Monitor institutional banking reserves, track real-time clearing velocity, and oversee customer accounts.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="showToast('Exporting system snapshot CSV...', 'info')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-slate-700 text-xs font-semibold shadow-sm hover:bg-slate-50 transition-colors border border-slate-200" type="button">
+            <span class="material-symbols-outlined text-[16px]">file_download</span>
+            <span class="">System Export</span>
+          </button>
+          <button onclick="showToast('Initiating End of Day clearing verification...', 'info')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-700 text-white text-xs font-semibold shadow-sm hover:bg-blue-800 transition-colors" type="button">
+            <span class="material-symbols-outlined text-[16px]">account_balance_wallet</span>
+            <span class="">Run EOD Settlement</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5 Summary KPI Stat Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        <!-- 1. Total Reserves -->
+        <div class="flex flex-col justify-between p-5 rounded-xl bg-white shadow-sm border border-slate-200/80">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Reserves (EGP)</span>
+              <span class="p-1 rounded bg-blue-50 text-blue-700"><span class="material-symbols-outlined text-[18px]">account_balance</span></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">142,850,000.00</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-500">Active &amp; frozen pools</span>
+            <span class="font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded whitespace-nowrap">+3.2% MoM</span>
+          </div>
+        </div>
+
+        <!-- 2. Total Customers -->
+        <div class="flex flex-col justify-between p-5 rounded-xl bg-white shadow-sm border border-slate-200/80">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Customers</span>
+              <span class="p-1 rounded bg-slate-50 text-slate-600"><span class="material-symbols-outlined text-[18px]">group</span></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 tracking-tight">12,480</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-500">12,461 Verified KYC</span>
+            <span class="font-semibold text-emerald-700">+48 wk</span>
+          </div>
+        </div>
+
+        <!-- 3. Total Accounts -->
+        <div class="flex flex-col justify-between p-5 rounded-xl bg-white shadow-sm border border-slate-200/80">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Accounts</span>
+              <span class="p-1 rounded bg-slate-50 text-slate-600"><span class="material-symbols-outlined text-[18px]">credit_card</span></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 tracking-tight">18,920</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-500">Checking &amp; Deposits</span>
+            <span class="font-semibold text-slate-700">1.52 / client</span>
+          </div>
+        </div>
+
+        <!-- 4. Transactions Today -->
+        <div class="flex flex-col justify-between p-5 rounded-xl bg-white shadow-sm border border-slate-200/80">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Transactions Today</span>
+              <span class="p-1 rounded bg-slate-50 text-slate-600"><span class="material-symbols-outlined text-[18px]">sync_alt</span></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 tracking-tight">1,428</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-500 whitespace-nowrap">Vol: EGP 14.8M</span>
+            <span class="text-blue-700 font-semibold inline-flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-blue-700 mr-1"></span>Normal</span>
+          </div>
+        </div>
+
+        <!-- 5. Fees Collected Today -->
+        <div class="flex flex-col justify-between p-5 rounded-xl bg-white shadow-sm border border-slate-200/80">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Fees Collected (EGP)</span>
+              <span class="p-1 rounded bg-slate-50 text-slate-600"><span class="material-symbols-outlined text-[18px]">receipt</span></span>
+            </div>
+            <div class="text-lg font-bold text-slate-900 tracking-tight">42,650.00</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-500">Interchange &amp; Wire</span>
+            <span class="font-semibold text-emerald-700">99.8% Cleared</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accounts Overview: 2 Panels (Account Type & Account Status) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+        <!-- Panel 1: By Account Type -->
+        <div class="lg:col-span-7 bg-white rounded-xl p-6 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+                  <span class="material-symbols-outlined text-[20px]">donut_small</span>
+                </div>
+                <div>
+                  <h2 class="text-base font-bold text-slate-900 leading-tight">Portfolio Composition by Account Type</h2>
+                  <span class="text-xs text-slate-500">Distribution of retail deposits and current ledger commitments</span>
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-slate-500">18,920 Total Accounts</span>
+            </div>
+
+            <div class="flex flex-col mt-5 gap-4">
+              <!-- Savings -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5 text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-blue-700"></span>
+                    <span class="font-bold text-slate-800">Savings Accounts</span>
+                    <span class="text-slate-500">(8,420 accounts)</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="font-bold text-slate-900">EGP 58.20M</span>
+                    <span class="text-slate-500 ml-1.5 font-semibold">40.7%</span>
+                  </div>
+                </div>
+                <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div class="h-full bg-blue-700 rounded-full" style="width: 40.7%"></div>
+                </div>
+              </div>
+
+              <!-- Checking -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5 text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span>
+                    <span class="font-bold text-slate-800">Checking Accounts</span>
+                    <span class="text-slate-500">(7,150 accounts)</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="font-bold text-slate-900">EGP 49.60M</span>
+                    <span class="text-slate-500 ml-1.5 font-semibold">34.7%</span>
+                  </div>
+                </div>
+                <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div class="h-full bg-sky-600 rounded-full" style="width: 34.7%"></div>
+                </div>
+              </div>
+
+              <!-- Fixed Deposit -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5 text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-900"></span>
+                    <span class="font-bold text-slate-800">Fixed Deposit Accounts</span>
+                    <span class="text-slate-500">(3,350 accounts)</span>
+                  </div>
+                  <div class="text-right">
+                    <span class="font-bold text-slate-900">EGP 35.05M</span>
+                    <span class="text-slate-500 ml-1.5 font-semibold">24.5%</span>
+                  </div>
+                </div>
+                <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div class="h-full bg-indigo-900 rounded-full" style="width: 24.5%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-3 flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+            <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-blue-700">info</span>Fixed term deposit interest calculation runs daily at 23:59 Cairo time.</span>
+            <button onclick="switchView('interest-processing')" class="text-blue-700 font-bold hover:underline whitespace-nowrap ml-2" type="button">Interest Rules →</button>
+          </div>
+        </div>
+
+        <!-- Panel 2: Account Integrity Status (Active, Frozen, Closed) -->
+        <div class="lg:col-span-5 bg-white rounded-xl p-6 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[20px]">verified_user</span>
+                </div>
+                <div>
+                  <h2 class="text-base font-bold text-slate-900 leading-tight">Account Integrity Status</h2>
+                  <span class="text-xs text-slate-500">Compliance &amp; Operational States</span>
+                </div>
+              </div>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">Real-Time</span>
+            </div>
+
+            <div class="flex flex-col gap-2.5 mt-4">
+              <!-- Active -->
+              <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50">
+                <div class="flex items-center gap-3">
+                  <span class="w-3 h-3 rounded-full bg-emerald-600"></span>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">Active Operational Accounts</div>
+                    <div class="text-[11px] text-slate-500">Standard transaction capabilities enabled</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-bold text-slate-900 block">17,940</span>
+                  <span class="text-[11px] font-semibold text-emerald-700">94.8% Active</span>
+                </div>
+              </div>
+
+              <!-- Frozen -->
+              <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50">
+                <div class="flex items-center gap-3">
+                  <span class="w-3 h-3 rounded-full bg-rose-600"></span>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">Frozen &amp; Restricted</div>
+                    <div class="text-[11px] text-slate-500">AML investigation or court injunction</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-bold text-slate-900 block">620</span>
+                  <span class="text-[11px] font-semibold text-rose-700">3.3% Hold</span>
+                </div>
+              </div>
+
+              <!-- Closed -->
+              <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50">
+                <div class="flex items-center gap-3">
+                  <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+                  <div>
+                    <div class="text-xs font-bold text-slate-900">Terminated &amp; Closed</div>
+                    <div class="text-[11px] text-slate-500">Archived in compliance ledger</div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs font-bold text-slate-900 block">360</span>
+                  <span class="text-[11px] font-semibold text-slate-600">1.9% Closed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-2 flex items-center justify-between text-xs">
+            <span class="text-slate-500">Escalation Threshold: 5.0% tolerance</span>
+            <button onclick="switchView('accounts')" class="text-blue-700 font-bold hover:underline" type="button">Manage Compliance Holds →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Directory Snippet -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6 mb-6">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+          <div>
+            <h2 class="text-base font-bold text-slate-900">Recent Customer Quick Operations</h2>
+            <p class="text-xs text-slate-500">Direct shortcut into customer records.</p>
+          </div>
+          <button onclick="switchView('customers')" class="text-xs font-bold text-blue-700 hover:underline flex items-center gap-1" type="button">
+            <span class="">Go to Customers View</span>
+            <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div onclick="openCustomerModal('c1')" class="p-3 bg-slate-50 rounded-lg hover:bg-blue-50/50 cursor-pointer transition-colors border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">TM</div>
+              <div>
+                <div class="text-xs font-bold text-slate-900">Tarek Mansour</div>
+                <div class="text-[11px] text-slate-500 font-mono">BB-948201 • 2 Accounts</div>
+              </div>
+            </div>
+            <span class="text-xs text-blue-700 font-semibold">Inspect</span>
+          </div>
+
+          <div onclick="openCustomerModal('c2')" class="p-3 bg-slate-50 rounded-lg hover:bg-blue-50/50 cursor-pointer transition-colors border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">NE</div>
+              <div>
+                <div class="text-xs font-bold text-slate-900">Nadia El-Sayed</div>
+                <div class="text-[11px] text-slate-500 font-mono">BB-883194 • 1 Account</div>
+              </div>
+            </div>
+            <span class="text-xs text-blue-700 font-semibold">Inspect</span>
+          </div>
+
+          <div onclick="openCustomerModal('c3')" class="p-3 bg-slate-50 rounded-lg hover:bg-rose-50/50 cursor-pointer transition-colors border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-xs">OF</div>
+              <div>
+                <div class="text-xs font-bold text-slate-900">Omar Farouk</div>
+                <div class="text-[11px] text-rose-600 font-mono">BB-724910 • Frozen Hold</div>
+              </div>
+            </div>
+            <span class="text-xs text-rose-700 font-semibold">Inspect</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 2: CUSTOMERS
+         ========================================== -->
+    <section id="view-customers" class="admin-view flex flex-col w-full hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 pt-2">
+        <div>
+          <h1 class="font-display text-2xl font-bold text-slate-900 tracking-tight">Customer Directory &amp; Management</h1>
+          <p class="text-sm text-slate-600">Lookup client records, review KYC status, and inspect customer portfolio accounts.</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span class="">Indexed CRM: 12,480 Active Profiles</span>
+        </div>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 mb-6">
+        <div class="flex flex-col md:flex-row items-center gap-3">
+          <div class="relative flex-1 w-full">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+            <label for="customer-search-input" class="sr-only">Search by customer name</label><input id="customer-search-input" name="customerSearchInput" type="text" placeholder="Search by customer name, e.g. Tarek, Nadia, Omar, Layla, Karim..." class="w-full h-11 pl-10 pr-4 rounded-lg bg-slate-50 text-slate-900 placeholder-slate-400 text-sm border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700" onkeyup="filterCustomers()">
+          </div>
+          <div class="flex items-center gap-2 w-full md:w-auto">
+            <button id="btn-admin-customer-search" onclick="filterCustomers(true)" class="h-11 px-6 rounded-lg bg-blue-700 text-white text-xs font-semibold hover:bg-blue-800 inline-flex items-center justify-center gap-2 transition-all flex-1 md:flex-initial shadow-sm" type="button">
+              <span class="material-symbols-outlined text-[18px]">search</span>
+              <span class="">Search</span>
+            </button>
+            <button onclick="resetCustomerSearch()" class="h-11 px-4 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold inline-flex items-center justify-center gap-1 transition-all" type="button">
+              <span class="">Clear</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="customer-search-error" class="hidden mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2" role="alert"><span class="material-symbols-outlined text-[18px]">error</span><span id="customer-search-error-msg">INVALID_SEARCH_QUERY: Search query must be at least 2 non-whitespace characters.</span></div>
+      <!-- Customer Results Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left" id="customer-main-table">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                <th class="py-3 px-4 rounded-l-lg">Customer Entity</th>
+                <th class="py-3 px-4">Customer ID</th>
+                <th class="py-3 px-4">Number of Accounts</th>
+                <th class="py-3 px-4">KYC &amp; Status</th>
+                <th class="py-3 px-4 text-right rounded-r-lg">Administrative Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100" id="customer-table-body">
+              <!-- Customer 1 -->
+              <tr class="customer-row hover:bg-slate-50 transition-colors" data-name="Tarek Mansour" data-id="BB-948201">
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">TM</div>
+                    <div>
+                      <span class="text-sm font-bold text-slate-900 block leading-tight customer-name">Tarek Mansour</span>
+                      <span class="text-xs text-slate-500">Resident Individual</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 font-mono text-xs font-semibold text-slate-800">BB-948201</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-medium">2 Accounts</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    Verified KYC
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openCustomerModal('c1')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors" type="button">
+                    <span class="">View Details</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </button>
+                </td>
+              </tr>
+              <!-- Customer 2 -->
+              <tr class="customer-row hover:bg-slate-50 transition-colors" data-name="Nadia El-Sayed" data-id="BB-883194">
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">NE</div>
+                    <div>
+                      <span class="text-sm font-bold text-slate-900 block leading-tight customer-name">Nadia El-Sayed</span>
+                      <span class="text-xs text-slate-500">Premier Banking</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 font-mono text-xs font-semibold text-slate-800">BB-883194</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-medium">1 Account</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    Verified KYC
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openCustomerModal('c2')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors" type="button">
+                    <span class="">View Details</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </button>
+                </td>
+              </tr>
+              <!-- Customer 3 -->
+              <tr class="customer-row hover:bg-slate-50 transition-colors" data-name="Omar Farouk" data-id="BB-724910">
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-xs">OF</div>
+                    <div>
+                      <span class="text-sm font-bold text-slate-900 block leading-tight customer-name">Omar Farouk</span>
+                      <span class="text-xs text-slate-500">High-Net-Worth Individual</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 font-mono text-xs font-semibold text-slate-800">BB-724910</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-medium">3 Accounts</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                    AML Review Pending
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openCustomerModal('c3')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors" type="button">
+                    <span class="">View Details</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </button>
+                </td>
+              </tr>
+              <!-- Customer 4 -->
+              <tr class="customer-row hover:bg-slate-50 transition-colors" data-name="Layla Hassan" data-id="BB-619042">
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">LH</div>
+                    <div>
+                      <span class="text-sm font-bold text-slate-900 block leading-tight customer-name">Layla Hassan</span>
+                      <span class="text-xs text-slate-500">Salary Account Client</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 font-mono text-xs font-semibold text-slate-800">BB-619042</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-medium">1 Account</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    Verified KYC
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openCustomerModal('c4')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors" type="button">
+                    <span class="">View Details</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </button>
+                </td>
+              </tr>
+              <!-- Customer 5 -->
+              <tr class="customer-row hover:bg-slate-50 transition-colors" data-name="Karim Zaki" data-id="BB-510933">
+                <td class="py-3.5 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs">KZ</div>
+                    <div>
+                      <span class="text-sm font-bold text-slate-900 block leading-tight customer-name">Karim Zaki</span>
+                      <span class="text-xs text-slate-500">Commercial Individual</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 font-mono text-xs font-semibold text-slate-800">BB-510933</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-medium">2 Accounts</span>
+                </td>
+                <td class="py-3.5 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    Verified KYC
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openCustomerModal('c5')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors" type="button">
+                    <span class="">View Details</span>
+                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div id="no-customers-found" class="hidden text-center py-10 text-slate-500">
+            <span class="material-symbols-outlined text-[36px] text-slate-300 mb-1">person_search</span>
+            <p class="font-bold text-slate-800 text-sm">No matching customers found</p>
+            <p class="text-xs mt-1">Try searching with a partial name or Customer ID.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 3: ACCOUNTS
+         ========================================== -->
+    <section id="view-accounts" class="admin-view flex flex-col w-full hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 pt-2">
+        <div>
+          <h1 class="font-display text-2xl font-bold text-slate-900 tracking-tight">Accounts Management &amp; Enforcement</h1>
+          <p class="text-sm text-slate-600">Inspect ledger accounts, filter by product type and balance range, and enforce administrative status holds.</p>
+        </div>
+      </div>
+
+      <!-- Regulatory Notice Banner -->
+      <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm mb-6 flex items-start gap-3">
+        <span class="material-symbols-outlined text-amber-600 text-[22px] flex-shrink-0 mt-0.5">security</span>
+        <div class="text-xs text-amber-900 leading-relaxed">
+          <strong class="font-bold">Administrative Restriction:</strong> Administrators are authorized exclusively to inspect ledger records, freeze accounts, or unfreeze accounts. Moving, depositing, withdrawing, or transferring funds on behalf of clients is strictly prohibited by central banking regulations.
+        </div>
+      </div>
+
+      <!-- Search & Multi-Filter Controls -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div>
+            <label for="acc-filter-number" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Account Number</label>
+            <input id="acc-filter-number" name="accFilterNumber" type="text" placeholder="e.g. 7701 or EG" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+          </div>
+          <div>
+            <label for="acc-filter-type" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Account Type</label>
+            <select id="acc-filter-type" name="accFilterType" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+              <option value="ALL">All Types</option>
+              <option value="Checking">Checking</option>
+              <option value="Savings">Savings</option>
+              <option value="Fixed Deposit">Fixed Deposit</option>
+            </select>
+          </div>
+          <div>
+            <label for="acc-filter-status" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Account Status</label>
+            <select id="acc-filter-status" name="accFilterStatus" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+              <option value="ALL">All Statuses</option>
+              <option value="Active">Active</option>
+              <option value="Frozen">Frozen</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+          <div>
+            <label for="acc-filter-min" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Min Balance (EGP)</label>
+            <input id="acc-filter-min" name="accFilterMin" type="number" min="0" step="0.01" placeholder="0" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+          </div>
+          <div>
+            <label for="acc-filter-max" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Max Balance (EGP)</label>
+            <input id="acc-filter-max" name="accFilterMax" type="number" min="0" step="0.01" placeholder="500000" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-slate-100">
+          <button onclick="resetAccountFilters()" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold" type="button">Reset Filters</button>
+          <button onclick="filterAccountsTable()" class="px-5 py-2 rounded-lg bg-blue-700 text-white text-xs font-semibold hover:bg-blue-800 shadow-sm inline-flex items-center gap-1.5" type="button">
+            <span class="material-symbols-outlined text-[16px]">filter_alt</span>
+            <span class="">Apply Filters</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Accounts Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left" id="accounts-master-table">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                <th class="py-3 px-4 rounded-l-lg">Masked Account Number</th>
+                <th class="py-3 px-4">Customer Name &amp; ID</th>
+                <th class="py-3 px-4">Account Type</th>
+                <th class="py-3 px-4">Balance (EGP)</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right rounded-r-lg">Administrative Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100" id="accounts-table-body">
+              <!-- Row 1: Active Checking -->
+              <tr class="account-row hover:bg-slate-50 transition-colors" data-acc="EG40 •••• 7701" data-customer="Tarek Mansour" data-cid="BB-948201" data-type="Checking" data-balance="38150.00" data-status="Active">
+                <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-900">EG40 •••• 7701</td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-xs">Tarek Mansour</div>
+                  <div class="text-[11px] text-slate-500 font-mono">BB-948201</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-700">Checking</td>
+                <td class="py-3.5 px-4 font-mono font-bold text-slate-900 text-xs">EGP 38,150.00</td>
+                <td class="py-3.5 px-4">
+                  <span class="status-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Active
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                  <div class="action-buttons inline-flex items-center gap-2">
+                    <button onclick="promptFreezeModal(this)" class="px-2.5 py-1 rounded border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold transition-colors" type="button">Freeze Account</button>
+                    <button onclick="showToast('Loading full ledger journal...', 'info')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold" type="button">View Details</button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 2: Active Savings -->
+              <tr class="account-row hover:bg-slate-50 transition-colors" data-acc="EG82 •••• 5519" data-customer="Nadia El-Sayed" data-cid="BB-883194" data-type="Savings" data-balance="144300.00" data-status="Active">
+                <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-900">EG82 •••• 5519</td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-xs">Nadia El-Sayed</div>
+                  <div class="text-[11px] text-slate-500 font-mono">BB-883194</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-700">Savings</td>
+                <td class="py-3.5 px-4 font-mono font-bold text-slate-900 text-xs">EGP 144,300.00</td>
+                <td class="py-3.5 px-4">
+                  <span class="status-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Active
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                  <div class="action-buttons inline-flex items-center gap-2">
+                    <button onclick="promptFreezeModal(this)" class="px-2.5 py-1 rounded border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold transition-colors" type="button">Freeze Account</button>
+                    <button onclick="showToast('Loading full ledger journal...', 'info')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold" type="button">View Details</button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 3: Frozen Fixed Deposit -->
+              <tr class="account-row hover:bg-slate-50 transition-colors" data-acc="EG55 •••• 9924" data-customer="Omar Farouk" data-cid="BB-724910" data-type="Fixed Deposit" data-balance="300000.00" data-status="Frozen">
+                <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-900">EG55 •••• 9924</td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-xs">Omar Farouk</div>
+                  <div class="text-[11px] text-slate-500 font-mono">BB-724910</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-700">Fixed Deposit</td>
+                <td class="py-3.5 px-4 font-mono font-bold text-slate-900 text-xs">EGP 300,000.00</td>
+                <td class="py-3.5 px-4">
+                  <span class="status-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>Frozen
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                  <div class="action-buttons inline-flex items-center gap-2">
+                    <button onclick="promptUnfreezeModal(this)" class="px-2.5 py-1 rounded border border-amber-400 text-amber-800 hover:bg-amber-50 text-xs font-semibold transition-colors" type="button">Unfreeze Account</button>
+                    <button onclick="showToast('Loading full ledger journal...', 'info')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold" type="button">View Details</button>
+                  </div>
+                </td>
+              </tr>
+              <!-- Row 4: Closed Account -->
+              <tr class="account-row hover:bg-slate-50 transition-colors" data-acc="EG19 •••• 3341" data-customer="Omar Farouk" data-cid="BB-724910" data-type="Checking" data-balance="0.00" data-status="Closed">
+                <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-400 line-through">EG19 •••• 3341</td>
+                <td class="py-3.5 px-4">
+                  <div class="font-semibold text-slate-500 text-xs">Omar Farouk</div>
+                  <div class="text-[11px] text-slate-400 font-mono">BB-724910</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-500">Checking</td>
+                <td class="py-3.5 px-4 font-mono font-medium text-slate-500 text-xs">EGP 0.00</td>
+                <td class="py-3.5 px-4">
+                  <span class="status-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>Closed
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                  <span class="inline-block px-2.5 py-1 text-[11px] font-semibold text-slate-500 bg-slate-100 rounded cursor-not-allowed">
+                    Closed (Permanent)
+                  </span>
+                </td>
+              </tr>
+              <!-- Row 5: Active Checking Layla -->
+              <tr class="account-row hover:bg-slate-50 transition-colors" data-acc="EG61 •••• 1092" data-customer="Layla Hassan" data-cid="BB-619042" data-type="Checking" data-balance="85200.00" data-status="Active">
+                <td class="py-3.5 px-4 font-mono text-xs font-bold text-slate-900">EG61 •••• 1092</td>
+                <td class="py-3.5 px-4">
+                  <div class="font-bold text-slate-900 text-xs">Layla Hassan</div>
+                  <div class="text-[11px] text-slate-500 font-mono">BB-619042</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs text-slate-700">Checking</td>
+                <td class="py-3.5 px-4 font-mono font-bold text-slate-900 text-xs">EGP 85,200.00</td>
+                <td class="py-3.5 px-4">
+                  <span class="status-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Active
+                  </span>
+                </td>
+                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                  <div class="action-buttons inline-flex items-center gap-2">
+                    <button onclick="promptFreezeModal(this)" class="px-2.5 py-1 rounded border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold transition-colors" type="button">Freeze Account</button>
+                    <button onclick="showToast('Loading full ledger journal...', 'info')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold" type="button">View Details</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div id="no-accounts-found" class="hidden text-center py-10 text-slate-500">
+            <span class="material-symbols-outlined text-[36px] text-slate-300 mb-1">search_off</span>
+            <p class="font-bold text-slate-800 text-sm">No ledger accounts match current filters</p>
+            <p class="text-xs mt-1">Try clearing balance thresholds or account number query.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 4: AUDIT LOG
+         ========================================== -->
+    <section id="view-audit-log" class="admin-view flex flex-col w-full hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 pt-2">
+        <div>
+          <h1 class="font-display text-2xl font-bold text-slate-900 tracking-tight">Administrative Audit Trail</h1>
+          <p class="text-sm text-slate-600">Immutable, time-stamped log of all supervisory actions, overrides, and automated clearing events.</p>
+        </div>
+        <button onclick="showToast('Exporting signed tamper-proof audit bundle (.enc)', 'info')" class="px-3.5 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1.5 shadow-sm self-start md:self-auto" type="button">
+          <span class="material-symbols-outlined text-[16px]">file_download</span>
+          <span class="">Export Tamper Proof Log</span>
+        </button>
+      </div>
+
+      <!-- Filter Controls -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label for="audit-filter-start" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Start Date</label>
+            <input id="audit-filter-start" name="auditFilterStart" type="date" value="2026-10-24" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+          </div>
+          <div>
+            <label for="audit-filter-end" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">End Date</label>
+            <input id="audit-filter-end" name="auditFilterEnd" type="date" value="2026-10-25" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+          </div>
+          <div>
+            <label for="audit-filter-user" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Admin User</label>
+            <select id="audit-filter-user" name="auditFilterUser" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+              <option value="ALL">All Admins</option>
+              <option value="Sherif Admin">Sherif Admin [BB-ADM-01]</option>
+              <option value="Mona Compliance">Mona Compliance [BB-ADM-04]</option>
+              <option value="Automated System">Core System Daemon</option>
+            </select>
+          </div>
+          <div>
+            <label for="audit-filter-action" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Action Type</label>
+            <select id="audit-filter-action" name="auditFilterAction" class="w-full h-10 px-3 rounded-lg bg-slate-50 text-slate-900 text-xs border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-700">
+              <option value="ALL">All Actions</option>
+              <option value="Batch Interest Run">Batch Interest Accrual</option>
+              <option value="Account Status Override">Account Status Override</option>
+              <option value="Central Bank Settlement">Central Bank Settlement</option>
+              <option value="KYC Verification">KYC Verification</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-slate-100">
+          <button onclick="resetAuditFilters()" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold" type="button">Reset Filters</button>
+          <button onclick="filterAuditTable()" class="px-5 py-2 rounded-lg bg-blue-700 text-white text-xs font-semibold hover:bg-blue-800 shadow-sm inline-flex items-center gap-1.5" type="button">
+            <span class="material-symbols-outlined text-[16px]">tune</span>
+            <span class="">Apply Filters</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Audit Log Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left" id="audit-master-table">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                <th class="py-3 px-4 rounded-l-lg">Date and Time (Cairo)</th>
+                <th class="py-3 px-4">Admin User</th>
+                <th class="py-3 px-4">Action</th>
+                <th class="py-3 px-4">Affected Customer or Account</th>
+                <th class="py-3 px-4">Result</th>
+                <th class="py-3 px-4 text-right rounded-r-lg">Details</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100" id="audit-table-body">
+              <!-- Log 1 -->
+              <tr class="audit-row hover:bg-slate-50 transition-colors" data-user="Automated System" data-action="Batch Interest Run">
+                <td class="py-3.5 px-4 font-mono text-xs text-slate-800">25 Oct 2026, 14:22:18</td>
+                <td class="py-3.5 px-4 text-xs font-bold text-slate-800">
+                  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-600"></span>Core System Daemon</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs font-medium text-slate-900">Batch Interest Accrual</td>
+                <td class="py-3.5 px-4 text-xs font-mono text-slate-600">Batch: 8,420 Savings Accounts</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">Completed</span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openAuditModal('sig_7f8a912c44bb', '10.240.12.88', 'Batch daily interest accrual computed across 8,420 accounts. Total posted: EGP 68,141.67')" class="text-blue-700 hover:underline text-xs font-semibold" type="button">Inspect</button>
+                </td>
+              </tr>
+              <!-- Log 2 -->
+              <tr class="audit-row hover:bg-slate-50 transition-colors" data-user="Mona Compliance" data-action="Account Status Override">
+                <td class="py-3.5 px-4 font-mono text-xs text-slate-800">25 Oct 2026, 13:58:04</td>
+                <td class="py-3.5 px-4 text-xs font-bold text-slate-800">
+                  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-600"></span>Mona Compliance [BB-ADM-04]</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs font-medium text-rose-700">Account Status Override (Frozen)</td>
+                <td class="py-3.5 px-4 text-xs font-mono text-slate-600">Omar Farouk [BB-724910] / EG55 •••• 9924</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800">Dual Signed</span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openAuditModal('sig_4b3e018d99ef', '192.168.4.15', 'Temporary regulatory freeze applied following CBE unusual velocity pattern alert #AML-2026-991.')" class="text-blue-700 hover:underline text-xs font-semibold" type="button">Inspect</button>
+                </td>
+              </tr>
+              <!-- Log 3 -->
+              <tr class="audit-row hover:bg-slate-50 transition-colors" data-user="Automated System" data-action="Central Bank Settlement">
+                <td class="py-3.5 px-4 font-mono text-xs text-slate-800">25 Oct 2026, 13:41:50</td>
+                <td class="py-3.5 px-4 text-xs font-bold text-slate-800">
+                  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-blue-600"></span>Core System Daemon</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs font-medium text-slate-900">RTGS Settlement Broadcast</td>
+                <td class="py-3.5 px-4 text-xs font-mono text-slate-600">CBE Gateway • EGP 500,000.00</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">Success</span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openAuditModal('sig_11c998aa0103', '10.240.12.90', 'RTGS outbound packet confirmed by CBE gateway node CAI-01. Settlement acknowledgement #CBE-901844.')" class="text-blue-700 hover:underline text-xs font-semibold" type="button">Inspect</button>
+                </td>
+              </tr>
+              <!-- Log 4 -->
+              <tr class="audit-row hover:bg-slate-50 transition-colors" data-user="Sherif Admin" data-action="KYC Verification">
+                <td class="py-3.5 px-4 font-mono text-xs text-slate-800">25 Oct 2026, 11:15:02</td>
+                <td class="py-3.5 px-4 text-xs font-bold text-slate-800">
+                  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>Sherif Admin [BB-ADM-01]</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs font-medium text-slate-900">KYC Document Re-verified</td>
+                <td class="py-3.5 px-4 text-xs font-mono text-slate-600">Layla Hassan [BB-619042]</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">Success</span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openAuditModal('sig_9901ddfa445b', '192.168.4.10', 'Annual biometric and National ID proof refresh recorded and affirmed with digital token signature.')" class="text-blue-700 hover:underline text-xs font-semibold" type="button">Inspect</button>
+                </td>
+              </tr>
+              <!-- Log 5 -->
+              <tr class="audit-row hover:bg-slate-50 transition-colors" data-user="Sherif Admin" data-action="Account Status Override">
+                <td class="py-3.5 px-4 font-mono text-xs text-slate-800">24 Oct 2026, 16:40:19</td>
+                <td class="py-3.5 px-4 text-xs font-bold text-slate-800">
+                  <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>Sherif Admin [BB-ADM-01]</div>
+                </td>
+                <td class="py-3.5 px-4 text-xs font-medium text-slate-900">Unfreeze Request Approved</td>
+                <td class="py-3.5 px-4 text-xs font-mono text-slate-600">Tarek Mansour [EG40 •••• 7701]</td>
+                <td class="py-3.5 px-4">
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800">Success</span>
+                </td>
+                <td class="py-3.5 px-4 text-right">
+                  <button onclick="openAuditModal('sig_88ef110b9912', '192.168.4.10', 'Customer presented clean source of funds documentation. Branch clearance #ZMK-442 approved.')" class="text-blue-700 hover:underline text-xs font-semibold" type="button">Inspect</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div id="no-audit-found" class="hidden text-center py-10 text-slate-500">
+            <span class="material-symbols-outlined text-[36px] text-slate-300 mb-1">find_in_page</span>
+            <p class="font-bold text-slate-800 text-sm">No audit events match specified criteria</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 5: INTEREST PROCESSING
+         ========================================== -->
+    <section id="view-interest-processing" class="admin-view flex flex-col w-full hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 pt-2">
+        <div>
+          <h1 class="font-display text-2xl font-bold text-slate-900 tracking-tight">Monthly Interest Calculation &amp; Accrual Engine</h1>
+          <p class="text-sm text-slate-600">Manage automated interest schedules for institutional and personal deposit products.</p>
+        </div>
+      </div>
+
+      <!-- 4 Status Summary Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- 1. Last Interest Run -->
+        <div class="p-5 rounded-xl bg-white shadow-sm border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-slate-500 mb-2">
+              <span class="text-xs font-semibold uppercase">Last Interest Run</span>
+              <span class="material-symbols-outlined text-blue-700 text-[20px]">history</span>
+            </div>
+            <div class="text-lg font-bold text-slate-900">01 Oct 2026</div>
+            <div class="text-xs text-slate-500 font-mono mt-0.5">00:00:01 Cairo Time</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100">
+            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Completed • 8,420 credited
+            </span>
+          </div>
+        </div>
+
+        <!-- 2. Next Scheduled Run -->
+        <div class="p-5 rounded-xl bg-white shadow-sm border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-slate-500 mb-2">
+              <span class="text-xs font-semibold uppercase">Next Scheduled Run</span>
+              <span class="material-symbols-outlined text-sky-600 text-[20px]">event_upcoming</span>
+            </div>
+            <div class="text-lg font-bold text-slate-900">01 Nov 2026</div>
+            <div class="text-xs text-slate-500 font-mono mt-0.5">00:00:00 Cairo Time</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100">
+            <span class="text-[11px] font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded">
+              In 7 Days • Automated Core Cron
+            </span>
+          </div>
+        </div>
+
+        <!-- 3. Engine Status -->
+        <div class="p-5 rounded-xl bg-white shadow-sm border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-slate-500 mb-2">
+              <span class="text-xs font-semibold uppercase">Engine Status</span>
+              <span class="material-symbols-outlined text-emerald-600 text-[20px]">tune</span>
+            </div>
+            <div class="text-lg font-bold text-emerald-700 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Ready / Idle
+            </div>
+            <div class="text-xs text-slate-500 mt-0.5">Core calculation service active</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100">
+            <span class="text-[11px] font-semibold text-slate-600">Ledger Sync: Operational</span>
+          </div>
+        </div>
+
+        <!-- 4. Monthly Accrual Estimate -->
+        <div class="p-5 rounded-xl bg-white shadow-sm border border-slate-200/80 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-slate-500 mb-2">
+              <span class="text-xs font-semibold uppercase">Monthly Accrual Estimate</span>
+              <span class="material-symbols-outlined text-indigo-700 text-[20px]">payments</span>
+            </div>
+            <div class="text-lg font-bold text-slate-900">EGP 2,044,250.00</div>
+            <div class="text-xs text-slate-500 mt-0.5">Projected for Nov cycle</div>
+          </div>
+          <div class="mt-4 pt-2 border-t border-slate-100">
+            <span class="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded">
+              8,420 eligible deposit contracts
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interest Rate Schedule -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6 mb-6">
+        <div class="flex items-center gap-2 pb-4 border-b border-slate-100 mb-4">
+          <span class="material-symbols-outlined text-blue-700 text-[22px]">policy</span>
+          <h2 class="text-base font-bold text-slate-900">Interest Rate Schedule by Account Type</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="flex items-center gap-2 font-bold text-blue-900 mb-1">
+              <span class="material-symbols-outlined text-[20px]">savings</span>
+              <h3 class="">Savings Accounts</h3>
+            </div>
+            <div class="text-2xl font-bold text-blue-700 my-1">17.0% <span class="text-xs font-normal text-slate-600">p.a.</span></div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Paid and compounded monthly directly to customer available balance based on average monthly minimum balance threshold.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="flex items-center gap-2 font-bold text-indigo-900 mb-1">
+              <span class="material-symbols-outlined text-[20px]">lock_clock</span>
+              <h3 class="">Fixed Deposit Accounts</h3>
+            </div>
+            <div class="text-2xl font-bold text-indigo-800 my-1">17.0% - 17.75% <span class="text-xs font-normal text-slate-600">p.a.</span></div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              17.0% for 12 months, or 17.75% for 36 months certificate contracts. Accrues daily, paid strictly upon maturity date.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+            <div class="flex items-center gap-2 font-bold text-slate-800 mb-1">
+              <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+              <h3 class="">Checking Accounts</h3>
+            </div>
+            <div class="text-2xl font-bold text-slate-600 my-1">0.0% <span class="text-xs font-normal text-slate-500">p.a.</span></div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Non-interest bearing transactional accounts per liquidity protocol. Zero yield accrual applied during month-end clearing.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action: Simulated Engine Trigger -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-bold text-slate-900">Monthly Interest Processing</h2>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                Simulated Administrative Sandbox
+              </span>
+            </div>
+            <p class="text-xs text-slate-600 mt-1">Review and run scheduled interest calculations according to the configured account rules.</p>
+          </div>
+          <button onclick="openInterestModal()" class="px-6 py-2.5 rounded-lg bg-blue-700 text-white text-xs font-semibold hover:bg-blue-800 transition-all shadow-sm inline-flex items-center gap-2 self-start md:self-auto" type="button">
+            <span class="material-symbols-outlined text-[18px]">play_circle</span>
+            <span class="">Run Monthly Interest</span>
+          </button>
+        </div>
+
+        <!-- Simulated Results Box -->
+        <div id="interest-run-results" class="hidden mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-emerald-700 text-[24px]">check_circle</span>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm text-emerald-900">PROTOTYPE RESULT - Batch #INT-2026-10-SIM (simulated)</h3>
+              <p class="text-xs text-emerald-800 mt-1 leading-relaxed">Simulated monthly interest accrual completed. This is a demonstration result only: no interest was calculated or credited to any real account, and no data was saved.</p>
+              <div class="mt-3 flex items-center gap-3">
+                <button onclick="showToast('Prototype only: a real batch log would be generated by the backend.', 'info')" class="px-3 py-1 bg-emerald-700 text-white rounded text-xs font-semibold hover:bg-emerald-800 inline-flex items-center gap-1" type="button">
+                  <span class="material-symbols-outlined text-[14px]">download</span> Download Run Report
+                </button>
+                <button onclick="document.getElementById('interest-run-results').classList.add('hidden')" class="text-xs font-semibold text-emerald-800 hover:underline" type="button">Dismiss</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         VIEW 6: TOP CUSTOMERS REPORT (richest customer)
+         ========================================== -->
+    <section id="view-reports" class="admin-view flex flex-col w-full hidden">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 pt-2">
+        <div>
+          <h1 class="font-display text-2xl font-bold text-slate-900 tracking-tight">Top Customers Report</h1>
+          <p class="text-sm text-slate-600">Customers ranked by total balance across all of their accounts. Frozen account balances are included and flagged. Prototype: totals are calculated in the browser from the demo customer data, not from a live database.</p>
+        </div>
+        <button id="btn-export-report" type="button" onclick="showToast('Exporting top customers report (.csv)...', 'info')" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white text-slate-700 text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200">
+          <span class="material-symbols-outlined text-[16px]">file_download</span>
+          <span class="">Export Report</span>
+        </button>
+      </div>
+
+      <!-- Richest customer highlight -->
+      <div class="rounded-xl bg-white shadow-sm border border-slate-200/80 p-6 mb-6" id="richest-card">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="material-symbols-outlined text-amber-500 text-[22px]">workspace_premium</span>
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Richest Customer</span>
+          <span class="ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-semibold">#1 Highest Total Balance</span>
+        </div>
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div class="font-display text-2xl font-bold text-slate-900" id="richest-name">-</div>
+            <div class="text-xs text-slate-500 mt-1"><span class="font-mono font-semibold" id="richest-id">-</span> &bull; <span id="richest-type">-</span> &bull; <span id="richest-accounts">-</span></div>
+            <div class="text-xs text-slate-600 mt-2" id="richest-accounts-list"></div>
+            <div class="text-xs text-amber-700 font-semibold mt-2 hidden" id="richest-frozen-note"></div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs text-slate-500 font-semibold uppercase">Total Balance</div>
+            <div class="font-mono text-2xl font-bold text-blue-700" id="richest-total">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ranking table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left" id="top-customers-table">
+            <thead>
+              <tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                <th class="py-3 px-4 rounded-l-lg">Rank</th>
+                <th class="py-3 px-4">Customer</th>
+                <th class="py-3 px-4">Customer ID</th>
+                <th class="py-3 px-4">Accounts</th>
+                <th class="py-3 px-4">Account Information</th>
+                <th class="py-3 px-4 text-right">Total Balance</th>
+                <th class="py-3 px-4 text-right rounded-r-lg">Share</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm" id="top-customers-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ==========================================
+     MODALS
+     ========================================== -->
+
+<!-- 1. Customer Details Modal -->
+<div id="customer-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="modal-backdrop fixed inset-0" onclick="closeCustomerModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 z-10 max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <div id="cust-modal-avatar" class="w-11 h-11 rounded-xl bg-blue-100 text-blue-800 font-bold text-base flex items-center justify-center">TM</div>
+        <div>
+          <h2 id="cust-modal-name" class="text-lg font-bold text-slate-900">Tarek Mansour</h2>
+          <span id="cust-modal-id" class="text-xs font-mono text-slate-500">BB-948201</span>
+        </div>
+      </div>
+      <button onclick="closeCustomerModal()" class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100" type="button">
+        <span class="material-symbols-outlined text-[20px]">close</span>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 py-4 text-xs">
+      <div class="p-2.5 bg-slate-50 rounded-lg">
+        <span class="text-slate-500 block text-[11px]">National ID</span>
+        <span id="cust-modal-nid" class="font-mono font-semibold text-slate-800">290•••••••••12</span>
+      </div>
+      <div class="p-2.5 bg-slate-50 rounded-lg">
+        <span class="text-slate-500 block text-[11px]">Primary Branch</span>
+        <span id="cust-modal-branch" class="font-semibold text-slate-800">Zamalek, Cairo</span>
+      </div>
+      <div class="p-2.5 bg-slate-50 rounded-lg">
+        <span class="text-slate-500 block text-[11px]">Contact Phone</span>
+        <span id="cust-modal-phone" class="font-mono font-semibold text-slate-800">+20 100 •••• 992</span>
+      </div>
+      <div class="p-2.5 bg-slate-50 rounded-lg">
+        <span class="text-slate-500 block text-[11px]">Registered Email</span>
+        <span id="cust-modal-email" class="font-semibold text-slate-800">t****@domain.eg</span>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="font-bold text-slate-900 text-xs mb-2.5">Linked Accounts &amp; Portfolios</h3>
+      <div id="cust-modal-accounts" class="space-y-2">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <div class="mt-4 p-3 rounded-lg bg-blue-50/70 border border-blue-100 text-blue-900 text-[11px] flex items-center gap-2">
+      <span class="material-symbols-outlined text-blue-700 text-[18px]">verified_user</span>
+      <span class="">Passwords and sensitive authentication credentials are encrypted and inaccessible per administrative compliance.</span>
+    </div>
+
+    <div class="mt-5 pt-3 border-t border-slate-100 flex justify-end">
+      <button onclick="closeCustomerModal()" class="px-5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Account Freeze / Unfreeze Confirmation Modal -->
+<div id="account-action-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="modal-backdrop fixed inset-0" onclick="closeAccountActionModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 z-10">
+    <div class="flex items-center gap-3 mb-4">
+      <div id="acc-modal-icon-bg" class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center">
+        <span id="acc-modal-icon" class="material-symbols-outlined text-[22px]">lock</span>
+      </div>
+      <div>
+        <h3 id="acc-modal-title" class="font-bold text-base text-slate-900">Confirm Account Restriction</h3>
+        <p class="text-xs text-slate-500">Administrative Enforcement Override</p>
+      </div>
+    </div>
+
+    <div class="p-3 bg-slate-50 rounded-xl mb-4 text-xs space-y-1.5 border border-slate-100">
+      <div class="flex justify-between"><span class="text-slate-500">Account:</span> <span id="acc-modal-acc" class="font-mono font-bold text-slate-800">EG40 •••• 7701</span></div>
+      <div class="flex justify-between"><span class="text-slate-500">Customer:</span> <span id="acc-modal-cust" class="font-semibold text-slate-800">Tarek Mansour</span></div>
+      <div class="flex justify-between"><span class="text-slate-500">Action:</span> <span id="acc-modal-action-text" class="font-bold text-rose-700">Freeze Account</span></div>
+    </div>
+
+    <div class="mb-4">
+      <label for="acc-modal-reason" class="block text-xs font-semibold text-slate-700 mb-1">Administrative Justification (Mandatory, 1–255 chars)</label>
+      <input id="acc-modal-reason" name="accModalReason" type="text" maxlength="255" required value="Regulatory compliance hold per inquiry #901" class="w-full h-9 px-3 text-xs rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-700">
+      <p id="acc-modal-reason-error" class="hidden text-xs text-rose-600 font-semibold mt-1" role="alert">VALIDATION_ERROR: Reason is mandatory (1 to 255 characters).</p>
+    </div>
+
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button onclick="closeAccountActionModal()" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold" type="button">Cancel</button>
+      <button id="acc-modal-confirm-btn" onclick="executeAccountAction()" class="px-4 py-2 rounded-lg bg-rose-600 text-white hover:bg-rose-700 text-xs font-semibold shadow-sm" type="button">Confirm Action</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Audit Details Modal -->
+<div id="audit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="modal-backdrop fixed inset-0" onclick="closeAuditModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 z-10">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+      <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+        <span class="material-symbols-outlined text-blue-700 text-[18px]">fingerprint</span>
+        Cryptographic Audit Record
+      </h3>
+      <button onclick="closeAuditModal()" class="text-slate-400 hover:text-slate-700" type="button">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <div class="space-y-3 text-xs">
+      <div>
+        <span class="text-slate-500 font-medium block">Digital Signature Hash (SHA-256):</span>
+        <div id="audit-modal-hash" class="font-mono bg-slate-50 p-2 rounded text-slate-800 break-all text-[11px] mt-1 select-all border border-slate-100">--</div>
+      </div>
+      <div>
+        <span class="text-slate-500 font-medium block">Originating Secure IP:</span>
+        <div id="audit-modal-ip" class="font-mono bg-slate-50 p-2 rounded text-slate-800 mt-1 font-semibold border border-slate-100">--</div>
+      </div>
+      <div>
+        <span class="text-slate-500 font-medium block">Ledger Event Journal:</span>
+        <div id="audit-modal-desc" class="bg-slate-50 border border-slate-100 p-2.5 rounded text-slate-700 mt-1 leading-relaxed">--</div>
+      </div>
+    </div>
+
+    <div class="mt-5 flex justify-end">
+      <button onclick="closeAuditModal()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-200" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Interest Execution Modal -->
+<div id="interest-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="modal-backdrop fixed inset-0" onclick="closeInterestModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 z-10">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[22px]">calculate</span>
+      </div>
+      <div>
+        <h3 class="font-bold text-base text-slate-900">Confirm Monthly Interest Accrual Run</h3>
+        <p class="text-xs text-slate-500">Prototype simulation</p>
+      </div>
+    </div>
+
+    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+      This will initiate simulated monthly interest calculation across all active Savings and qualifying Fixed Deposit accounts. No real-world financial transactions will occur.
+    </p>
+
+    <!-- Progress box -->
+    <div id="interest-progress-box" class="hidden mb-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+      <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-blue-700 animate-spin text-[22px]">progress_activity</span>
+        <div class="text-xs">
+          <div class="font-bold text-slate-900">Processing simulated Savings accounts...</div>
+          <div class="text-slate-500">Calculating accrual ledger delta</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2 pt-2">
+      <button id="interest-cancel-btn" onclick="closeInterestModal()" class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold" type="button">Cancel</button>
+      <button id="interest-confirm-btn" onclick="executeInterestBatch()" class="px-5 py-2 rounded-lg bg-blue-700 text-white hover:bg-blue-800 text-xs font-semibold shadow-sm" type="button">Run Calculation</button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Log Out Confirmation Modal -->
+<div id="logout-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="modal-backdrop fixed inset-0" onclick="closeLogoutModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 z-10">
+    <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center mb-4 mx-auto">
+      <span class="material-symbols-outlined text-[24px]">logout</span>
+    </div>
+    <h3 class="font-bold text-base text-slate-900 text-center mb-1">Confirm Administrator Logout</h3>
+    <p class="text-xs text-slate-500 text-center mb-5 leading-relaxed">You are about to terminate your core administrative session for Sherif Admin (Operations Manager) and return to the Login screen.</p>
+    <div class="flex items-center gap-2">
+      <button onclick="closeLogoutModal()" class="flex-1 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-semibold" type="button">Cancel</button>
+      <button type="button" onclick="executeLogout()" class="flex-1 py-2 rounded-lg bg-rose-600 text-white hover:bg-rose-700 text-xs font-semibold shadow-sm text-center block">Log Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     INTERACTIVE JAVASCRIPT
+     ========================================== -->
+<script>
+  // Customer Data Repository
+  const customerDatabase = {
+    c1: {
+      name: "Tarek Mansour",
+      id: "BB-948201",
+      nid: "290•••••••••12",
+      phone: "+20 100 •••• 992",
+      email: "t.mansour@domain.eg",
+      branch: "Zamalek, Cairo",
+      type: "Resident Individual",
+      accounts: [
+        { type: "Checking Account", num: "EG40 •••• 7701", balance: "EGP 38,150.00", status: "Active" },
+        { type: "Fixed Deposit (12M)", num: "EG21 •••• 9012", balance: "EGP 150,000.00", status: "Active" }
+      ]
+    },
+    c2: {
+      name: "Nadia El-Sayed",
+      id: "BB-883194",
+      nid: "285•••••••••44",
+      phone: "+20 122 •••• 411",
+      email: "n.elsayed@domain.eg",
+      branch: "Maadi, Cairo",
+      type: "Premier Banking",
+      accounts: [
+        { type: "High Yield Savings", num: "EG82 •••• 5519", balance: "EGP 144,300.00", status: "Active" }
+      ]
+    },
+    c3: {
+      name: "Omar Farouk",
+      id: "BB-724910",
+      nid: "292•••••••••89",
+      phone: "+20 111 •••• 308",
+      email: "omar.f@domain.eg",
+      branch: "Alexandria",
+      type: "High-Net-Worth Individual",
+      accounts: [
+        { type: "Term Deposit", num: "EG55 •••• 9924", balance: "EGP 300,000.00", status: "Frozen" },
+        { type: "Checking", num: "EG19 •••• 3341", balance: "EGP 0.00", status: "Closed" }
+      ]
+    },
+    c4: {
+      name: "Layla Hassan",
+      id: "BB-619042",
+      nid: "288•••••••••05",
+      phone: "+20 106 •••• 771",
+      email: "l.hassan@domain.eg",
+      branch: "Heliopolis, Cairo",
+      type: "Salary Account Client",
+      accounts: [
+        { type: "Checking Account", num: "EG61 •••• 1092", balance: "EGP 85,200.00", status: "Active" }
+      ]
+    },
+    c5: {
+      name: "Karim Zaki",
+      id: "BB-510933",
+      nid: "294•••••••••30",
+      phone: "+20 102 •••• 115",
+      email: "karim.z@domain.eg",
+      branch: "New Cairo",
+      type: "Commercial Individual",
+      accounts: [
+        { type: "Business Savings", num: "EG33 •••• 8812", balance: "EGP 192,400.00", status: "Active" },
+        { type: "Operations Checking", num: "EG90 •••• 1287", balance: "EGP 44,200.00", status: "Active" }
+      ]
+    }
+  };
+
+  // Toast Notification
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    const bgClass = type === 'success' ? 'bg-emerald-900 text-white' : type === 'error' ? 'bg-rose-900 text-white' : 'bg-slate-900 text-white';
+    const icon = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
+    
+    toast.className = `${bgClass} px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold pointer-events-auto border border-white/10`;
+    toast.innerHTML = `<span class="material-symbols-outlined text-[16px]">${icon}</span><span>${message}</span>`;
+    
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transition = 'opacity 0.25s ease';
+      setTimeout(() => toast.remove(), 250);
+    }, 3200);
+  }
+
+  // Mobile Sidebar Toggle
+  function toggleMobileSidebar() {
+    const sidebar = document.getElementById('sidebar-nav');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (sidebar.classList.contains('-translate-x-full')) {
+      sidebar.classList.remove('-translate-x-full');
+      backdrop.classList.remove('hidden');
+    } else {
+      sidebar.classList.add('-translate-x-full');
+      backdrop.classList.add('hidden');
+    }
+  }
+
+  // View Switcher (Dashboard, Customers, Accounts, Audit Log, Interest Processing)
+  function switchView(viewName) {
+    const allViews = document.querySelectorAll('.admin-view');
+    allViews.forEach(view => view.classList.add('hidden'));
+
+    const targetView = document.getElementById(`view-${viewName}`);
+    if (targetView) {
+      targetView.classList.remove('hidden');
+    }
+
+    // Update Sidebar Navigation state
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+      if (item.getAttribute('data-view') === viewName) {
+        item.className = 'nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left bg-blue-700 text-white shadow-sm font-semibold text-sm';
+      } else {
+        item.className = 'nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-medium text-sm';
+      }
+    });
+
+    if (viewName === 'reports') { renderTopCustomersReport(); }
+
+    // Close mobile drawer if open
+    const sidebar = document.getElementById('sidebar-nav');
+    if (window.innerWidth < 1024 && !sidebar.classList.contains('-translate-x-full')) {
+      toggleMobileSidebar();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Customer Filtering (Enforces >= 2 trimmed chars per ADM-02, BR-25, TC-ADM-02)
+  function filterCustomers(isExplicitSubmit = false) {
+    const query = document.getElementById('customer-search-input').value.toLowerCase().trim();
+    const errBox = document.getElementById('customer-search-error');
+    if (errBox) errBox.classList.add('hidden');
+    if ((isExplicitSubmit && query.length < 2) || query.length === 1) {
+      if (errBox) errBox.classList.remove('hidden');
+      return;
+    }
+    const rows = document.querySelectorAll('.customer-row');
+    let foundCount = 0;
+
+    rows.forEach(row => {
+      const name = (row.getAttribute('data-name') || '').toLowerCase();
+      const id = (row.getAttribute('data-id') || '').toLowerCase();
+
+      if (name.includes(query) || id.includes(query)) {
+        row.classList.remove('hidden');
+        foundCount++;
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+
+    const noResults = document.getElementById('no-customers-found');
+    if (foundCount === 0) {
+      noResults.classList.remove('hidden');
+    } else {
+      noResults.classList.add('hidden');
+    }
+  }
+
+  function resetCustomerSearch() {
+    document.getElementById('customer-search-input').value = '';
+    filterCustomers();
+  }
+
+  // Customer Details Modal
+  function openCustomerModal(customerId) {
+    const cust = customerDatabase[customerId] || customerDatabase.c1;
+    document.getElementById('cust-modal-name').textContent = cust.name;
+    document.getElementById('cust-modal-id').textContent = cust.id;
+    document.getElementById('cust-modal-avatar').textContent = cust.name.split(' ').map(n => n[0]).join('');
+    document.getElementById('cust-modal-nid').textContent = cust.nid;
+    document.getElementById('cust-modal-branch').textContent = cust.branch;
+    document.getElementById('cust-modal-phone').textContent = cust.phone;
+    document.getElementById('cust-modal-email').textContent = cust.email;
+
+    const accContainer = document.getElementById('cust-modal-accounts');
+    accContainer.innerHTML = '';
+    cust.accounts.forEach(acc => {
+      const card = document.createElement('div');
+      card.className = 'flex items-center justify-between p-2.5 bg-slate-50 rounded-lg text-xs border border-slate-100';
+      const statusBadge = acc.status === 'Active' 
+        ? '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-semibold">Active</span>'
+        : acc.status === 'Frozen'
+        ? '<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-semibold">Frozen</span>'
+        : '<span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-semibold">Closed</span>';
+      
+      card.innerHTML = `
+        <div>
+          <span class="font-bold text-slate-900 block">${acc.type}</span>
+          <span class="font-mono text-slate-500 text-[11px]">${acc.num}</span>
+        </div>
+        <div class="text-right">
+          <span class="font-mono font-bold text-slate-900 block">${acc.balance}</span>
+          ${statusBadge}
+        </div>
+      `;
+      accContainer.appendChild(card);
+    });
+
+    document.getElementById('customer-modal').classList.remove('hidden');
+  }
+
+  function closeCustomerModal() {
+    document.getElementById('customer-modal').classList.add('hidden');
+  }
+
+  // ===== Top customers report =====
+  function balanceToNumber(text) {
+    return parseFloat(String(text).replace(/[^0-9.]/g, '')) || 0;
+  }
+
+  function formatMoney(n) {
+    return 'EGP ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Text like "Term Deposit (EG55 •••• 9924, Frozen) + Checking (...)": built from the customer's accounts
+  function accountSummary(accounts) {
+    return accounts.map(function (a) { return a.type + ' (' + a.num + ', ' + a.status + ')'; }).join(' | ');
+  }
+
+  function renderTopCustomersReport() {
+    // 1) Add up every customer's accounts
+    var list = [];
+    var grandTotal = 0;
+    Object.keys(customerDatabase).forEach(function (key) {
+      var c = customerDatabase[key];
+      var total = 0;
+      var frozen = 0;
+      var nonClosedAccounts = c.accounts.filter(function (acc) { return acc.status !== 'Closed'; });
+      nonClosedAccounts.forEach(function (acc) {
+        var amount = balanceToNumber(acc.balance);
+        total += amount;
+        if (acc.status === 'Frozen') { frozen += amount; }
+      });
+      grandTotal += total;
+      list.push({ name: c.name, id: c.id, type: c.type, accounts: c.accounts.length, total: total, frozen: frozen, details: c.accounts });
+    });
+
+    // 2) Biggest balance first
+    list.sort(function (a, b) { return b.total - a.total; });
+
+    // 3) Richest customer card (Supports tied #1 customers per ADM-04, TC-ADM-03)
+    var topBalance = list.length > 0 ? list[0].total : 0;
+    var tiedTop = list.filter(function (item) { return item.total === topBalance; });
+    var top = list[0];
+    document.getElementById('richest-name').textContent = tiedTop.map(function (t) { return t.name; }).join(' & ');
+    document.getElementById('richest-id').textContent = tiedTop.map(function (t) { return t.id; }).join(', ');
+    document.getElementById('richest-type').textContent = top.type;
+    document.getElementById('richest-accounts').textContent = top.accounts + ' account(s)';
+    document.getElementById('richest-total').textContent = formatMoney(top.total);
+    document.getElementById('richest-accounts-list').textContent = accountSummary(top.details);
+    var note = document.getElementById('richest-frozen-note');
+    if (top.frozen > 0) {
+      note.textContent = 'Includes ' + formatMoney(top.frozen) + ' in a frozen account.';
+      note.classList.remove('hidden');
+    } else {
+      note.classList.add('hidden');
+    }
+
+    // 4) Ranking table
+    var body = document.getElementById('top-customers-body');
+    body.innerHTML = '';
+    list.forEach(function (c, index) {
+      var share = grandTotal ? (c.total / grandTotal * 100).toFixed(1) : '0.0';
+      var row = document.createElement('tr');
+      row.className = 'hover:bg-slate-50 transition-colors' + (index === 0 ? ' bg-amber-50/40' : '');
+      row.innerHTML =
+        '<td class="py-3.5 px-4 font-bold text-slate-900">#' + (index + 1) + '</td>' +
+        '<td class="py-3.5 px-4 font-semibold text-slate-900">' + c.name + '</td>' +
+        '<td class="py-3.5 px-4 font-mono text-xs text-slate-700">' + c.id + '</td>' +
+        '<td class="py-3.5 px-4 text-slate-700">' + c.accounts + '</td>' +
+        '<td class="py-3.5 px-4 text-xs text-slate-600">' + c.details.map(function (a) { return a.type + ' &middot; ' + a.num + ' &middot; ' + a.balance + ' (' + a.status + ')'; }).join('<br>') + '</td>' +
+        '<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">' + formatMoney(c.total) + '</td>' +
+        '<td class="py-3.5 px-4 text-right text-slate-600">' + share + '%</td>';
+      body.appendChild(row);
+    });
+  }
+
+  // Account Table Multi-filtering
+  function filterAccountsTable() {
+    const accNumQuery = document.getElementById('acc-filter-number').value.toLowerCase().trim();
+    const typeQuery = document.getElementById('acc-filter-type').value;
+    const statusQuery = document.getElementById('acc-filter-status') ? document.getElementById('acc-filter-status').value : 'ALL';
+    const minBalVal = parseFloat(document.getElementById('acc-filter-min').value) || 0;
+    const maxBalInput = document.getElementById('acc-filter-max').value;
+    const maxBalVal = maxBalInput ? parseFloat(maxBalInput) : Infinity;
+
+    const rows = document.querySelectorAll('.account-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const acc = (row.getAttribute('data-acc') || '').toLowerCase();
+      const type = row.getAttribute('data-type');
+      const status = row.getAttribute('data-status');
+      const balance = parseFloat(row.getAttribute('data-balance')) || 0;
+
+      const matchesNum = !accNumQuery || acc.includes(accNumQuery);
+      const matchesType = (typeQuery === 'ALL') || (type === typeQuery);
+      const matchesStatus = (statusQuery === 'ALL') || (status === statusQuery);
+      const matchesBal = (balance >= minBalVal) && (balance <= maxBalVal);
+
+      if (matchesNum && matchesType && matchesStatus && matchesBal) {
+        row.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+
+    const noAcc = document.getElementById('no-accounts-found');
+    if (visibleCount === 0) {
+      noAcc.classList.remove('hidden');
+    } else {
+      noAcc.classList.add('hidden');
+    }
+  }
+
+  function resetAccountFilters() {
+    document.getElementById('acc-filter-number').value = '';
+    document.getElementById('acc-filter-type').value = 'ALL';
+    if (document.getElementById('acc-filter-status')) document.getElementById('acc-filter-status').value = 'ALL';
+    document.getElementById('acc-filter-min').value = '';
+    document.getElementById('acc-filter-max').value = '';
+    filterAccountsTable();
+  }
+
+  // Account Freeze / Unfreeze Action Modal
+  let currentTargetRow = null;
+  let currentActionType = null; // 'freeze' | 'unfreeze'
+
+  function promptFreezeModal(buttonEl) {
+    const row = buttonEl.closest('.account-row');
+    currentTargetRow = row;
+    currentActionType = 'freeze';
+
+    const acc = row.getAttribute('data-acc');
+    const cust = row.getAttribute('data-customer');
+
+    document.getElementById('acc-modal-title').textContent = 'Confirm Account Restriction (Freeze)';
+    document.getElementById('acc-modal-acc').textContent = acc;
+    document.getElementById('acc-modal-cust').textContent = cust;
+    document.getElementById('acc-modal-action-text').textContent = 'Freeze Account (Immediate Restriction)';
+    document.getElementById('acc-modal-action-text').className = 'font-bold text-rose-700';
+    document.getElementById('acc-modal-icon-bg').className = 'w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center';
+    document.getElementById('acc-modal-icon').textContent = 'lock';
+    document.getElementById('acc-modal-confirm-btn').className = 'px-4 py-2 rounded-lg bg-rose-600 text-white hover:bg-rose-700 text-xs font-semibold shadow-sm';
+    document.getElementById('acc-modal-confirm-btn').textContent = 'Confirm Freeze';
+
+    document.getElementById('account-action-modal').classList.remove('hidden');
+  }
+
+  function promptUnfreezeModal(buttonEl) {
+    const row = buttonEl.closest('.account-row');
+    currentTargetRow = row;
+    currentActionType = 'unfreeze';
+
+    const acc = row.getAttribute('data-acc');
+    const cust = row.getAttribute('data-customer');
+
+    document.getElementById('acc-modal-title').textContent = 'Confirm Account Unfreeze';
+    document.getElementById('acc-modal-acc').textContent = acc;
+    document.getElementById('acc-modal-cust').textContent = cust;
+    document.getElementById('acc-modal-action-text').textContent = 'Restore Operational Status (Unfreeze)';
+    document.getElementById('acc-modal-action-text').className = 'font-bold text-emerald-700';
+    document.getElementById('acc-modal-icon-bg').className = 'w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center';
+    document.getElementById('acc-modal-icon').textContent = 'lock_open';
+    document.getElementById('acc-modal-confirm-btn').className = 'px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold shadow-sm';
+    document.getElementById('acc-modal-confirm-btn').textContent = 'Confirm Unfreeze';
+
+    document.getElementById('account-action-modal').classList.remove('hidden');
+  }
+
+  function closeAccountActionModal() {
+    document.getElementById('account-action-modal').classList.add('hidden');
+    currentTargetRow = null;
+    currentActionType = null;
+  }
+
+  function executeAccountAction() {
+    if (!currentTargetRow) return;
+    const reasonInput = document.getElementById('acc-modal-reason');
+    const reasonErr = document.getElementById('acc-modal-reason-error');
+    const trimmedReason = reasonInput ? reasonInput.value.trim() : '';
+    if (!trimmedReason || trimmedReason.length > 255) {
+      if (reasonErr) reasonErr.classList.remove('hidden');
+      if (reasonInput) reasonInput.focus();
+      return;
+    }
+    if (reasonErr) reasonErr.classList.add('hidden');
+    const badge = currentTargetRow.querySelector('.status-badge');
+    const actionContainer = currentTargetRow.querySelector('.action-buttons');
+    const acc = currentTargetRow.getAttribute('data-acc');
+
+    if (currentActionType === 'freeze') {
+      currentTargetRow.setAttribute('data-status', 'Frozen');
+      badge.className = 'status-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-xs font-semibold';
+      badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>Frozen';
+      actionContainer.innerHTML = `
+        <button onclick="promptUnfreezeModal(this)" class="px-2.5 py-1 rounded border border-amber-400 text-amber-800 hover:bg-amber-50 text-xs font-semibold transition-colors" type="button">Unfreeze Account</button>
+        <button onclick="showToast('Loading full ledger journal...', 'info')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold" type="button">View Details</button>
+      `;
+      showToast(`Account ${acc} has been successfully FROZEN.`, 'error');
+    } else {
+      currentTargetRow.setAttribute('data-status', 'Active');
+      badge.className = 'status-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold';
+      badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Active';
+      actionContainer.innerHTML = `
+        <button onclick="promptFreezeModal(this)" class="px-2.5 py-1 rounded border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold transition-colors" type="button">Freeze Account</button>
+        <button onclick="showToast('Loading full ledger journal...', 'info')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold" type="button">View Details</button>
+      `;
+      showToast(`Account ${acc} is now restored to ACTIVE status.`, 'success');
+    }
+
+    closeAccountActionModal();
+  }
+
+  // Audit Log Filtering
+  function filterAuditTable() {
+    const userQuery = document.getElementById('audit-filter-user').value;
+    const actionQuery = document.getElementById('audit-filter-action').value;
+    const rows = document.querySelectorAll('.audit-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const user = row.getAttribute('data-user');
+      const action = row.getAttribute('data-action');
+
+      const matchesUser = (userQuery === 'ALL') || (user === userQuery);
+      const matchesAction = (actionQuery === 'ALL') || (action === actionQuery);
+
+      if (matchesUser && matchesAction) {
+        row.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+
+    const noAudit = document.getElementById('no-audit-found');
+    if (visibleCount === 0) {
+      noAudit.classList.remove('hidden');
+    } else {
+      noAudit.classList.add('hidden');
+    }
+  }
+
+  function resetAuditFilters() {
+    document.getElementById('audit-filter-user').value = 'ALL';
+    document.getElementById('audit-filter-action').value = 'ALL';
+    filterAuditTable();
+  }
+
+  function openAuditModal(hash, ip, desc) {
+    document.getElementById('audit-modal-hash').textContent = hash;
+    document.getElementById('audit-modal-ip').textContent = ip;
+    document.getElementById('audit-modal-desc').textContent = desc;
+    document.getElementById('audit-modal').classList.remove('hidden');
+  }
+
+  function closeAuditModal() {
+    document.getElementById('audit-modal').classList.add('hidden');
+  }
+
+  // Interest Processing Engine
+  function openInterestModal() {
+    document.getElementById('interest-progress-box').classList.add('hidden');
+    document.getElementById('interest-confirm-btn').disabled = false;
+    document.getElementById('interest-cancel-btn').disabled = false;
+    document.getElementById('interest-confirm-btn').textContent = 'Run Calculation';
+    document.getElementById('interest-modal').classList.remove('hidden');
+  }
+
+  function closeInterestModal() {
+    document.getElementById('interest-modal').classList.add('hidden');
+  }
+
+  function executeInterestBatch() {
+    const progress = document.getElementById('interest-progress-box');
+    const confirmBtn = document.getElementById('interest-confirm-btn');
+    const cancelBtn = document.getElementById('interest-cancel-btn');
+
+    progress.classList.remove('hidden');
+    confirmBtn.disabled = true;
+    cancelBtn.disabled = true;
+    confirmBtn.textContent = 'Computing...';
+
+    setTimeout(() => {
+      closeInterestModal();
+      document.getElementById('interest-run-results').classList.remove('hidden');
+      showToast('Prototype result: simulated interest run completed. No real accounts were credited.', 'success');
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }, 1200);
+  }
+
+  // Logout Modal
+  function openLogoutModal() {
+    document.getElementById('logout-modal').classList.remove('hidden');
+  }
+
+  function closeLogoutModal() {
+    document.getElementById('logout-modal').classList.add('hidden');
+  }
+
+  function executeLogout() {
+    closeLogoutModal();
+    // Session cleared by Spring Security /logout
+    showToast('Admin session terminated. Redirecting to Authentication...', 'info');
+    setTimeout(function () { window.location.href = 'index.html'; }, 800);
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+</body></html>

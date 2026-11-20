@@ -1,0 +1,2335 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BTS — Digital Banking Portal</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#1e40af",
+            "primary-container": "#172554",
+            "primary-light": "#3b82f6",
+            "surface": "#f8fafc",
+            "surface-card": "#ffffff",
+            "surface-dim": "#f1f5f9",
+            "surface-container": "#eaedff",
+            "on-surface": "#0f172a",
+            "secondary": "#64748b",
+            "outline-subtle": "#e2e8f0",
+            "success-bg": "#dcfce7",
+            "success-text": "#15803d",
+            "error": "#b91c1c",
+            "error-bg": "#fee2e2"
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            mono: ['Inter', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      body {
+        overscroll-behavior: none;
+      }
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .view-container {
+      display: none;
+    }
+    .view-container.active-view {
+      display: block;
+      animation: fadeIn 0.18s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] text-on-surface font-sans antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-900">
+<!-- TOP HEADER (Permanently Visible) -->
+<header class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200/90 z-40 flex items-center justify-between px-4 sm:px-6 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+<!-- Brand / Logo -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center text-white shadow-sm shadow-blue-700/20">
+<span class="material-symbols-outlined text-[24px]">shield</span>
+</div>
+<div class="flex flex-col"><div class="flex items-center gap-1.5 leading-none"><span class="text-lg font-extrabold text-blue-700 tracking-tight">BTS</span></div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">DIGITAL BANKING PORTAL</span></div>
+</div>
+<!-- Header Right Controls -->
+<div class="flex items-center gap-3 sm:gap-4">
+<!-- Notification Icon -->
+<button aria-label="Notifications" class="relative p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors" onclick="alert('No new unread banking alerts.')" type="button">
+<span class="material-symbols-outlined text-[22px]">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-600 ring-2 ring-white"></span>
+</button>
+<div class="h-6 w-px bg-slate-200"></div>
+<!-- Customer Summary & Profile Trigger -->
+<div class="relative" id="profileDropdownWrapper">
+<div class="flex items-center gap-2.5 cursor-pointer group py-1.5 px-2 rounded-xl hover:bg-slate-100 transition-colors" id="profileDropdownTrigger" onclick="document.getElementById('profileDropdownMenu').classList.toggle('hidden')">
+<div class="w-9 h-9 rounded-full bg-blue-700 flex items-center justify-center text-white font-bold text-xs tracking-tight shadow-sm shrink-0" id="headerUserInitials">
+            TM
+          </div>
+<div class="hidden md:flex flex-col text-left">
+<span class="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors leading-tight" id="headerUserName">Tarek Mansour</span>
+<span class="text-[11px] text-slate-500 font-medium leading-tight">Personal Client • <span class="font-mono text-slate-600">BB-948201</span></span>
+</div>
+<span class="material-symbols-outlined text-slate-400 group-hover:text-slate-700 text-[18px] transition-transform">expand_more</span>
+</div>
+<!-- Header Dropdown Menu -->
+<div class="hidden absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50" id="profileDropdownMenu">
+<div class="px-4 py-2.5 border-b border-slate-100">
+<p class="text-sm font-bold text-slate-900" id="dropdownUserName">Tarek Mansour</p>
+<p class="text-xs text-slate-500 font-mono mt-0.5">Customer ID: BB-948201</p>
+<span class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 uppercase tracking-wide">Verified Retail Client</span>
+</div>
+<div class="py-1">
+<button class="w-full flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 hover:text-blue-700 text-xs font-semibold transition-colors text-left" onclick="document.getElementById('profileDropdownMenu').classList.add('hidden'); showView('profile');" type="button">
+<span class="material-symbols-outlined text-[18px] text-blue-700">account_circle</span>
+<span class="">View Profile Details</span>
+</button>
+<button class="w-full flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 hover:text-blue-700 text-xs font-semibold transition-colors text-left" onclick="document.getElementById('profileDropdownMenu').classList.add('hidden'); showView('accounts');" type="button">
+<span class="material-symbols-outlined text-[18px] text-blue-700">account_balance_wallet</span>
+<span class="">My Accounts &amp; Limits</span>
+</button>
+<button class="w-full flex items-center gap-2.5 px-4 py-2 text-slate-700 hover:bg-slate-50 hover:text-blue-700 text-xs font-semibold transition-colors text-left" onclick="document.getElementById('profileDropdownMenu').classList.add('hidden'); showView('statements');" type="button">
+<span class="material-symbols-outlined text-[18px] text-blue-700">description</span>
+<span class="">Account Statements</span>
+</button>
+</div>
+<div class="border-t border-slate-100 pt-1">
+<button class="w-full flex items-center gap-2.5 px-4 py-2 text-red-600 hover:bg-red-50 text-xs font-semibold transition-colors text-left" onclick="document.getElementById('profileDropdownMenu').classList.add('hidden'); openLogoutModal();" type="button">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="">Log Out</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- PERSISTENT LEFT SIDEBAR -->
+<aside class="fixed left-0 top-16 bottom-0 w-64 bg-white border-r border-slate-200/90 z-30 flex flex-col justify-between py-5 px-3">
+<!-- Main Navigation Items (Exact requested order) -->
+<nav class="space-y-1.5" id="sidebarNav">
+<!-- 1. Dashboard -->
+<button class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-white bg-blue-700 shadow-sm shadow-blue-700/25" data-view="dashboard" onclick="showView('dashboard')" type="button">
+<span class="material-symbols-outlined text-[20px]">space_dashboard</span>
+<span class="">Dashboard</span>
+</button>
+<!-- 2. My Accounts -->
+<button class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100" data-view="accounts" onclick="showView('accounts')" type="button">
+<span class="material-symbols-outlined text-[20px]">account_balance</span>
+<span class="">My Accounts</span>
+</button>
+<!-- 3. Transactions -->
+<button class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100" data-view="transactions" onclick="showView('transactions')" type="button">
+<span class="material-symbols-outlined text-[20px]">sync_alt</span>
+<span class="">Transactions</span>
+</button>
+<!-- 4. Statements -->
+<button class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100" data-view="statements" onclick="showView('statements')" type="button">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span class="">Statements</span>
+</button>
+<!-- 5. My Profile -->
+<button class="sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100" data-view="profile" onclick="showView('profile')" type="button">
+<span class="material-symbols-outlined text-[20px]">manage_accounts</span>
+<span class="">My Profile</span>
+</button>
+</nav>
+<!-- Bottom Sidebar Section (Item 6: Log Out) -->
+<div class="pt-4 border-t border-slate-100">
+<div class="px-3.5 py-2.5 mb-2 bg-slate-50 rounded-xl border border-slate-100">
+<p class="text-[11px] font-bold text-slate-700">Client Tier: Retail Level 1</p>
+<p class="text-[10px] text-slate-400 mt-0.5">Encrypted 256-Bit SSL • Active</p>
+</div>
+<button class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors" onclick="openLogoutModal()" type="button">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="">Log Out</span>
+</button>
+</div>
+</aside>
+<!-- MAIN CONTENT CANVAS -->
+<main class="ml-64 pt-16 flex-1 min-h-screen bg-[#f8fafc]">
+<div class="p-6 md:p-8 max-w-7xl mx-auto w-full">
+<!-- ============================================================== -->
+<!-- VIEW 1: DASHBOARD (Active by default) -->
+<!-- ============================================================== -->
+<div class="view-container space-y-6 active-view" id="view-dashboard">
+<!-- Greeting & Notification Banner -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+<div>
+<h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight" id="dashboardGreeting">Good morning, Tarek!</h1>
+<p class="text-sm text-slate-500 mt-1">Welcome back to BTS. Here is your portfolio performance snapshot.</p>
+</div>
+<div class="inline-flex items-center gap-2 self-start lg:self-auto bg-white border border-slate-200/80 px-3.5 py-1.5 rounded-full shadow-sm text-xs font-semibold text-slate-700">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+<span id="dashQuotaText">Account Limit: 4 of 5 active accounts used</span>
+<span class="material-symbols-outlined text-slate-400 text-[16px] cursor-help" title="Personal retail accounts quota allows up to 5 non-closed sub-accounts">info</span>
+</div>
+</div>
+<!-- Verified Profile Context Pill -->
+<div class="bg-blue-50/70 border border-blue-100 rounded-xl px-4 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+<div class="flex items-center gap-2 text-slate-700 truncate">
+<span class="material-symbols-outlined text-blue-700 text-[18px] shrink-0">badge</span>
+<span class="truncate">
+<strong class="text-slate-900">Client Record:</strong> <span id="bannerRecordName" class="">Tarek Mansour</span>
+<span class="mx-2 text-slate-300">|</span>
+<strong class="text-slate-900">Phone:</strong> <span id="bannerRecordPhone" class="">+20 100 123 4567</span>
+<span class="mx-2 text-slate-300">|</span>
+<strong class="text-slate-900">Primary Email:</strong> tarek.mansour@example.com <span class="text-emerald-700 font-semibold">(Verified)</span>
+</span>
+</div>
+<button class="text-blue-700 hover:text-blue-900 font-bold inline-flex items-center gap-1 shrink-0 transition-colors" onclick="showView('profile')" type="button">
+            Account Settings <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<!-- Total Balance Hero Card -->
+<div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7 relative overflow-hidden">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+<div class="space-y-1.5">
+<div class="flex items-center gap-3">
+<span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Total Portfolio Balance</span>
+<button aria-label="Toggle Balance Visibility" class="inline-flex items-center gap-1 text-slate-500 hover:text-slate-800 transition-colors text-xs font-semibold px-2 py-0.5 rounded-lg hover:bg-slate-100" id="toggleBalanceBtn" type="button">
+<span class="material-symbols-outlined text-[16px]" id="balanceIcon">visibility</span>
+<span id="balanceToggleText" class="">Hide Balance</span>
+</button>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight" id="balanceDisplay">EGP 482,450.00</span>
+</div>
+<p class="text-xs text-slate-500">
+                Combined available &amp; term balances across 4 active sub-accounts
+              </p>
+</div>
+<!-- Quick Action Buttons -->
+<div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+<button class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors" onclick="openDepositModal()" type="button">
+<span class="material-symbols-outlined text-[18px]">south_west</span>
+<span class="">Deposit</span>
+</button>
+<button class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors" onclick="openWithdrawModal()" type="button">
+<span class="material-symbols-outlined text-[18px]">north_east</span>
+<span class="">Withdraw</span>
+</button>
+<button class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-sm shadow-blue-700/20" onclick="showView('transactions')" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span class="">Transfer Money</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 4 Sub-Accounts Snapshot Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Card 1 -->
+<div class="bg-white rounded-xl p-5 border border-slate-200/90 shadow-sm hover:border-blue-400 transition-colors cursor-pointer" onclick="showView('accounts')">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-slate-500">Checking</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Active</span>
+</div>
+<div class="mt-2 text-xl font-bold text-slate-900 dashboard-sub-balance">EGP 38,150.00</div>
+<p class="text-[11px] text-slate-500 mt-1">EG40 •••• 7701 • Everyday</p>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-xl p-5 border border-slate-200/90 shadow-sm hover:border-blue-400 transition-colors cursor-pointer" onclick="showView('accounts')">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-slate-500">High-Yield Savings</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">17.0% p.a.</span>
+</div>
+<div class="mt-2 text-xl font-bold text-slate-900 dashboard-sub-balance">EGP 144,300.00</div>
+<p class="text-[11px] text-slate-500 mt-1">EG82 •••• 5519 • Interest Monthly</p>
+</div>
+<!-- Card 3 -->
+<div class="bg-white rounded-xl p-5 border border-slate-200/90 shadow-sm hover:border-blue-400 transition-colors cursor-pointer" onclick="showView('accounts')">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-slate-500">Fixed Deposit</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Locked 36 Mo</span>
+</div>
+<div class="mt-2 text-xl font-bold text-slate-900 dashboard-sub-balance">EGP 300,000.00</div>
+<p class="text-[11px] text-slate-500 mt-1">EG19 •••• 3341 • 17.75% Certificate</p>
+</div>
+<!-- Card 4 -->
+<div class="bg-white rounded-xl p-5 border border-slate-200/90 shadow-sm hover:border-blue-400 transition-colors cursor-pointer" onclick="showView('accounts')">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-slate-500">Secondary Checking</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800">Frozen</span>
+</div>
+<div class="mt-2 text-xl font-bold text-slate-900 dashboard-sub-balance">EGP 0.00</div>
+<p class="text-[11px] text-red-600 mt-1 font-semibold">Verification Hold</p>
+</div>
+</div>
+<!-- Recent Transactions Preview Table -->
+<div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+<div class="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between">
+<div>
+<h2 class="text-base font-bold text-slate-900">Recent Transactions</h2>
+<p class="text-xs text-slate-500 mt-0.5">Latest activity across your active accounts</p>
+</div>
+<button class="text-blue-700 hover:text-blue-800 font-bold text-xs inline-flex items-center gap-1 transition-colors" onclick="showView('statements')" type="button">
+<span class="">View All Statements</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-100">
+<th class="py-3 px-5">Date</th>
+<th class="py-3 px-4">Type</th>
+<th class="py-3 px-4">Description</th>
+<th class="py-3 px-4 text-right">Amount</th>
+<th class="py-3 px-5 text-right">Balance After</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700">
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">Today, 10:45 AM</td>
+<td class="py-3.5 px-4 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Deposit</span>
+</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Monthly Salary - Biscuit Holding</td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 24,500.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 482,450.00</td>
+</tr>
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">12 Oct 2025</td>
+<td class="py-3.5 px-4 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700">Withdrawal</span>
+</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">ATM Cash Withdrawal - Maadi Branch</td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">-EGP 2,000.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 457,950.00</td>
+</tr>
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">09 Oct 2025</td>
+<td class="py-3.5 px-4 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800">Transfer Out</span>
+</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Online Transfer - Apartment Rent</td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">-EGP 8,500.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 459,950.00</td>
+</tr>
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">01 Oct 2025</td>
+<td class="py-3.5 px-4 whitespace-nowrap">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Monthly Interest</span>
+</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Monthly Savings Interest Credit (17%)</td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 2,044.25</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 468,450.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+<span class="">Showing 4 of 48 transactions this cycle</span>
+<button class="font-bold text-blue-700 hover:text-blue-900 transition-colors inline-flex items-center gap-1" onclick="downloadCSVReport()" type="button">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span class="">Download CSV</span>
+</button>
+</div>
+</div>
+</div>
+<!-- ============================================================== -->
+<!-- VIEW 2: MY ACCOUNTS -->
+<!-- ============================================================== -->
+<div class="view-container space-y-6" id="view-accounts">
+<!-- Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<div class="flex items-center gap-2.5">
+<h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">My Accounts</h1>
+<span class="bg-blue-100 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full">5 Registered (4 Active, 1 Frozen)</span>
+</div>
+<p class="text-xs text-slate-500 mt-1">View and manage all your bank accounts in one place with real-time liquidity tracking and compliance status.</p>
+</div>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-white bg-blue-700 hover:bg-blue-800 text-xs font-bold shadow-sm shadow-blue-700/20 transition-all self-start md:self-auto" onclick="openNewAccountModal()" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span class="">Open New Account</span>
+</button>
+</div>
+<!-- Summary Metrics Strip -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Account Quota</p>
+<p class="text-2xl font-extrabold text-slate-900 mt-0.5" id="acctQuotaCount">4 / 5 Accounts</p>
+<p class="text-[11px] text-amber-600 font-semibold mt-1" id="acctQuotaNote">1 slot(s) free</p>
+</div>
+<div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[24px]">pin</span>
+</div>
+</div>
+<div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Balance</p>
+<p class="text-2xl font-extrabold text-slate-900 mt-0.5">EGP 482,450.00</p>
+<p class="text-[11px] text-slate-500 mt-1">Combined 5 registered accounts</p>
+</div>
+<div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[24px]">account_balance_wallet</span>
+</div>
+</div>
+<div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center justify-between">
+<div>
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Liquidity Split</p>
+<p class="text-sm font-bold text-slate-900 mt-1">Liquid: <span class="text-blue-700 font-mono">37.8%</span> | Fixed: <span class="text-slate-700 font-mono">62.2%</span></p>
+<div class="w-full bg-slate-100 rounded-full h-2 mt-2 overflow-hidden flex">
+<div class="bg-blue-600 h-2" style="width: 37.8%"></div>
+<div class="bg-slate-400 h-2" style="width: 62.2%"></div>
+</div>
+</div>
+<div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[24px]">pie_chart</span>
+</div>
+</div>
+</div>
+<!-- Filter Bar & Search -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200/90 shadow-sm">
+<div class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto" id="accountFilterGroup">
+<button class="account-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-blue-700 text-white" onclick="filterAccounts('all', this)" type="button">All Accounts (5)</button>
+<button class="account-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200" onclick="filterAccounts('active', this)" type="button">Active (4)</button>
+<button class="account-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200" onclick="filterAccounts('frozen', this)" type="button">Frozen (1)</button>
+<button class="account-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200" onclick="filterAccounts('zero', this)" type="button">Zero Balance (2)</button>
+</div>
+<div class="relative w-full sm:w-64">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-[18px]">search</span>
+<input class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" id="ibanSearchInput" aria-label="Search accounts" oninput="searchAccounts(this.value)" placeholder="Search 12-digit account number or title..." maxlength="100" name="accountSearch" type="text">
+</div>
+</div>
+<!-- Detailed Account Cards (5 Accounts) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5" id="accountsListGrid">
+<!-- 1. Everyday Checking Account -->
+<div class="account-card bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4 hover:border-blue-400 transition-colors" data-balance="38150" data-search="Everyday Checking EG407701" data-status="active">
+<div class="space-y-3">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700 text-[22px]">payments</span>
+<h3 class="font-extrabold text-base text-slate-900">Everyday Checking Account</h3>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Primary Liquidity Account</p>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+<span class="material-symbols-outlined text-[13px]">check_circle</span> Active
+                </span>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<span class="text-xs font-mono font-semibold text-slate-700">EG40 •••• 7701</span>
+<button class="text-slate-400 hover:text-blue-700 transition-colors p-1 rounded" onclick="copyToClipboard('EG4000000000000000000007701')" title="Copy IBAN" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+<div class="pt-1">
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Available Balance</div>
+<div class="text-2xl font-extrabold text-slate-900 mt-0.5 font-mono">EGP 38,150.00</div>
+</div>
+<div class="bg-slate-50 rounded-xl p-3 text-xs text-slate-600 space-y-1">
+<div class="flex justify-between">
+<span class="">Overdraft Limit:</span>
+<span class="font-semibold text-slate-900">EGP -1,000.00</span>
+</div>
+<div class="flex justify-between">
+<span class="">Monthly Maintenance:</span>
+<span class="font-semibold text-emerald-700">Waived (No Fee)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<button class="flex-1 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors text-center" onclick="showView('transactions')" type="button">Transact</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="showView('statements')" type="button">Statement</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="openDetailsModal('Everyday Checking', 'EG40 •••• 7701', 'EGP 38,150.00', 'Active', 'Standard retail checking account with debit card issued.')" type="button">Details</button>
+</div>
+</div>
+<!-- 2. High-Yield Savings Account -->
+<div class="account-card bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4 hover:border-blue-400 transition-colors" data-balance="144300" data-search="High-Yield Savings EG825519" data-status="active">
+<div class="space-y-3">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700 text-[22px]">savings</span>
+<h3 class="font-extrabold text-base text-slate-900">High-Yield Savings Account</h3>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Tiered Growth Savings</p>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+<span class="material-symbols-outlined text-[13px]">check_circle</span> Active
+                </span>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<span class="text-xs font-mono font-semibold text-slate-700">EG82 •••• 5519</span>
+<button class="text-slate-400 hover:text-blue-700 transition-colors p-1 rounded" onclick="copyToClipboard('EG8200000000000000000005519')" title="Copy IBAN" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+<div class="pt-1">
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Available Balance</div>
+<div class="text-2xl font-extrabold text-slate-900 mt-0.5 font-mono">EGP 144,300.00</div>
+</div>
+<div class="bg-slate-50 rounded-xl p-3 text-xs text-slate-600 space-y-1">
+<div class="flex justify-between">
+<span class="">Interest Rate:</span>
+<span class="font-bold text-blue-700">17.0% p.a. (paid monthly)</span>
+</div>
+<div class="flex justify-between">
+<span class="">Next Payout:</span>
+<span class="font-semibold text-slate-900">30 Nov (+EGP 2,044.25)</span>
+</div>
+<div class="flex justify-between">
+<span class="">Min. Balance:</span>
+<span class="font-semibold text-slate-700">EGP 1,000.00</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<button class="flex-1 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors text-center" onclick="showView('transactions')" type="button">Transact</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="showView('statements')" type="button">Statement</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="openDetailsModal('High-Yield Savings', 'EG82 •••• 5519', 'EGP 144,300.00', 'Active', 'Generates 17.0% annual yield credited at end of month.')" type="button">Details</button>
+</div>
+</div>
+<!-- 3. Growth Fixed Deposit Certificate -->
+<div class="account-card bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4 hover:border-blue-400 transition-colors" data-balance="300000" data-search="Growth Fixed Deposit Certificate EG193341" data-status="active">
+<div class="space-y-3">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700 text-[22px]">verified</span>
+<h3 class="font-extrabold text-base text-slate-900">Growth Fixed Deposit</h3>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Cert #FD-2023-882 • 36 Mo Term</p>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+<span class="material-symbols-outlined text-[13px]">lock</span> Active (Locked)
+                </span>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<span class="text-xs font-mono font-semibold text-slate-700">EG19 •••• 3341</span>
+<button class="text-slate-400 hover:text-blue-700 transition-colors p-1 rounded" onclick="copyToClipboard('EG1900000000000000000003341')" title="Copy IBAN" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+<div class="pt-1">
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Principal Locked</div>
+<div class="text-2xl font-extrabold text-slate-900 mt-0.5 font-mono">EGP 300,000.00</div>
+</div>
+<div class="bg-slate-50 rounded-xl p-3 text-xs text-slate-600 space-y-1">
+<div class="flex justify-between">
+<span class="">Matures On:</span>
+<span class="font-semibold text-slate-900">15 Oct 2028 (36 Months)</span>
+</div>
+<div class="flex justify-between">
+<span class="">Interest Yield:</span>
+<span class="font-bold text-blue-700">17.75% p.a. (Projected: +EGP 159,750)</span>
+</div>
+<div class="flex justify-between">
+<span class="">Min. Deposit Rule:</span>
+<span class="font-semibold text-slate-700">EGP 5,000.00</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<button class="flex-1 py-2 rounded-xl text-xs font-bold text-slate-400 bg-slate-100 cursor-not-allowed inline-flex items-center justify-center gap-1" disabled="" type="button">
+<span class="material-symbols-outlined text-[15px]">lock</span>
+<span class="">Transact (Locked)</span>
+</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="alert('Digital Certificate FD-2023-882 is officially certified with Central Bank regulatory clearance.')" type="button">Certificate</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="openDetailsModal('Growth Fixed Deposit', 'EG19 •••• 3341', 'EGP 300,000.00', 'Locked', 'Locked 36-month certificate yielding 17.75% per annum.')" type="button">Details</button>
+</div>
+</div>
+<!-- 4. Secondary Checking Account (Frozen) -->
+<div class="account-card bg-white rounded-2xl p-6 border border-red-200 shadow-sm flex flex-col justify-between space-y-4 hover:border-red-400 transition-colors" data-balance="0" data-search="Secondary Checking EG559924" data-status="frozen">
+<div class="space-y-3">
+<div class="flex items-start justify-between">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-red-600 text-[22px]">gpp_maybe</span>
+<h3 class="font-extrabold text-base text-slate-900">Secondary Checking</h3>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Checking Account</p>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
+<span class="material-symbols-outlined text-[13px]">ac_unit</span> Frozen
+                </span>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<span class="text-xs font-mono font-semibold text-slate-700">EG55 •••• 9924</span>
+<button class="text-slate-400 hover:text-blue-700 transition-colors p-1 rounded" onclick="copyToClipboard('EG5500000000000000000009924')" title="Copy IBAN" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+<div class="pt-1">
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Available Balance</div>
+<div class="text-2xl font-extrabold text-slate-900 mt-0.5 font-mono">EGP 0.00</div>
+</div>
+<div class="bg-red-50/80 rounded-xl p-3 text-xs text-red-800 space-y-1">
+<p class="font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">warning</span>
+                  Notice: Account Frozen
+                </p>
+<p class="text-[11px] leading-relaxed">
+                  Deposits, withdrawals, and outgoing transfers are disabled. Must be unfrozen by support before closure or further activity.
+                </p>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<button class="flex-1 py-2 rounded-xl text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 transition-colors text-center inline-flex items-center justify-center gap-1" onclick="alert('Connecting to Customer Care Desk: Hotline 19884 (Ref: Case #FROZEN-9924). Support representative available 24/7.')" type="button">
+<span class="material-symbols-outlined text-[16px]">support_agent</span>
+<span class="">Contact Support</span>
+</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="showView('statements')" type="button">Statement</button>
+</div>
+</div>
+<!-- 5. Student Checking Account (Eligible for closure) -->
+<div class="account-card bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-4 hover:border-blue-400 transition-colors lg:col-span-2" data-balance="0" data-search="Student Checking Account EG611092" data-status="active zero">
+<div class="space-y-3">
+<div class="flex items-start justify-between flex-wrap gap-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700 text-[22px]">school</span>
+<h3 class="font-extrabold text-base text-slate-900">Student Checking Account</h3>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Checking Account • Zero Balance</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+<span class="material-symbols-outlined text-[13px]">check_circle</span> Active
+                  </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+<span class="material-symbols-outlined text-[13px]">done_all</span> Eligible for Closure
+                  </span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<span class="text-xs font-mono font-semibold text-slate-700">EG61 •••• 1092</span>
+<button class="text-slate-400 hover:text-blue-700 transition-colors p-1 rounded" onclick="copyToClipboard('EG6100000000000000000001092')" title="Copy IBAN" type="button">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+<div class="bg-slate-50 rounded-xl p-3">
+<div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Available Balance</div>
+<div class="text-2xl font-extrabold text-slate-900 mt-0.5 font-mono">EGP 0.00</div>
+</div>
+<div class="bg-emerald-50/70 border border-emerald-100 rounded-xl p-3 text-xs text-emerald-900 flex flex-col justify-center">
+<p class="font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-emerald-700">verified</span>
+                    Compliance Rule Satisfied
+                  </p>
+<p class="text-[11px] text-emerald-800 mt-0.5">Account is ACTIVE and balance is exactly EGP 0.00. Ready for closure.</p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between flex-wrap gap-2 pt-3 border-t border-slate-100">
+<span class="text-xs text-slate-500">Closing this account releases 1 slot towards your 5-account limit.</span>
+<div class="flex items-center gap-2">
+<button class="py-2 px-4 rounded-xl text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 transition-colors inline-flex items-center gap-1" onclick="openCloseAccountModal('Student Checking Account', 'EG61 •••• 1092')" type="button">
+<span class="material-symbols-outlined text-[16px]">close_fullscreen</span>
+<span class="">Close Account</span>
+</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="showView('statements')" type="button">Statement</button>
+<button class="py-2 px-3 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="openDetailsModal('Student Checking Account', 'EG61 •••• 1092', 'EGP 0.00', 'Active (Closure Eligible)', 'Student account with waived fees. Ready for instantaneous account deactivation.')" type="button">Details</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Institutional Accounts Policy Footer Box -->
+<div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm flex items-start gap-3.5 text-xs text-slate-600">
+<span class="material-symbols-outlined text-blue-700 text-[26px] shrink-0 mt-0.5">account_balance</span>
+<div>
+<h4 class="font-bold text-slate-900 text-sm">BTS Account Guidelines &amp; Institutional Policy</h4>
+<p class="mt-1 leading-relaxed">Retail personal tier clients can hold a maximum of 5 simultaneous open accounts (checking, savings, and fixed deposit certificates). Accounts can only be closed when in Active standing with an exact balance of EGP 0.00. Institutional &amp; commercial accounts are entitled to higher sub-account quotas. Please contact your branch relationship officer for upgrades.</p>
+</div>
+</div>
+</div>
+<!-- ============================================================== -->
+<!-- VIEW 3: TRANSACTIONS -->
+<!-- ============================================================== -->
+<div class="view-container space-y-6" id="view-transactions">
+<!-- Header -->
+<div>
+<h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Transactions &amp; Money Movement</h1>
+<p class="text-xs text-slate-500 mt-1">Execute domestic transfers, bill payments, and view real-time settlement status.</p>
+</div>
+<!-- Sub Tabs -->
+<div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+<button class="px-4 py-2 rounded-xl text-xs font-bold bg-blue-700 text-white shadow-sm" type="button">Transfer Money</button>
+<button class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100" onclick="openDepositModal()" type="button">Deposit Simulation</button>
+<button class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100" onclick="openWithdrawModal()" type="button">Withdrawal Simulation</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Transfer Form (Left 2 cols) -->
+<div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm space-y-5">
+<h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700 text-[20px]">send</span>
+              Domestic Electronic Wire Transfer
+            </h2>
+<form class="space-y-4" id="transferForm" novalidate onsubmit="handleTransferSubmit(event)"><!-- 1. Source Account (From) -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-slate-700" for="transfer-from-account">Source Account (From)</label>
+<select class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="transfer-from-account" name="sourceAccount">
+<option value="checking">Everyday Checking — EG40 •••• 7701 (EGP 124,500.00)</option>
+<option value="savings">High-Yield Savings — EG12 •••• 9904 (EGP 350,000.00)</option>
+<option disabled="" value="frozen">Secondary Checking — EG55 •••• 9924 (Account Frozen - Transactions Disabled)</option>
+</select>
+<p class="text-[11px] text-slate-400">Frozen accounts cannot perform money transactions.</p>
+</div>
+
+<!-- Beneficiary Details Grid: 2 & 3 -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<!-- 2. Recipient IBAN or BTS Account Number -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-slate-700" for="transfer-recipient-account">Recipient Account Number (12 digits)</label>
+<input class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-mono focus:ring-2 focus:ring-blue-600 focus:outline-none" id="transfer-recipient-account" name="recipientAccount" maxlength="12" inputmode="numeric" pattern="[0-9]{12}" autocomplete="off" placeholder="12-digit account number, e.g. 123456789012" required="" type="text">
+</div>
+<!-- 3. Recipient Full Name -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-slate-700" for="transfer-recipient-name">Recipient Full Name</label>
+<input class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" id="transfer-recipient-name" name="transfer-recipient-name" maxlength="100" placeholder="e.g., Omar Khaled Hassan" required="" type="text">
+</div>
+</div>
+
+<!-- 4. Transfer Type / Network -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-slate-700" for="transfer-type">Transfer Type / Network</label>
+<select class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="transfer-type" name="network">
+<option value="bts-internal">BTS Internal (Instant)</option>
+<option value="ach">ACH Local Bank (Next Business Day)</option>
+<option value="ipn">Instant Payment Network / IPN</option>
+</select>
+</div>
+
+<!-- 5. Transfer Amount (EGP) -->
+<div class="space-y-1.5">
+<div class="flex items-center justify-between">
+<label class="text-xs font-bold text-slate-700" for="transfer-amount">Transfer Amount (EGP)</label>
+<span class="text-[11px] text-slate-500 font-semibold" id="transfer-daily-remaining">Daily remaining quota: EGP 111,500.00</span>
+</div>
+<div class="relative">
+<span class="absolute left-3.5 top-2.5 font-bold text-slate-400 text-xs">EGP</span>
+<input class="w-full pl-12 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm font-bold font-mono focus:ring-2 focus:ring-blue-600 focus:outline-none" id="transfer-amount" name="amount" max="70000" min="0.01" step="0.01" placeholder="0.00" required="" type="number">
+</div>
+<div class="flex items-center gap-2 pt-1"><button class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700" onclick="setTransferAmount(500)" type="button">+500</button><button class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700" onclick="setTransferAmount(1000)" type="button">+1,000</button><button class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700" onclick="setTransferAmount(5000)" type="button">+5,000</button><button class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700" onclick="setTransferAmount(10000)" type="button">+10,000</button><button class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 hover:bg-blue-100" onclick="setTransferAmount(38150, true)" type="button">Max</button></div>
+</div>
+
+<!-- 6. Transfer Description / Reference Note -->
+<div class="space-y-1.5">
+<label class="text-xs font-bold text-slate-700" for="transfer-memo">Transfer Description / Reference Note</label>
+<input class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs focus:ring-2 focus:ring-blue-600 focus:outline-none" id="transfer-memo" name="description" maxlength="100" placeholder="e.g., Monthly invoice payment, Rent" type="text">
+</div>
+
+<!-- Submit Button & Encryption Tag -->
+<!-- Transfer Form Validation Error Container -->
+<div class="hidden bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-700 flex items-start gap-2" id="transfer-validation-error" role="alert">
+  <span class="material-symbols-outlined text-red-600 text-[18px] shrink-0 mt-0.5">error</span>
+  <span id="transferFormErrorMessage" class="leading-relaxed">Please correct the errors in the transfer form before continuing.</span>
+</div><div class="pt-2">
+<button class="w-full py-3 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-sm shadow-blue-700/20 flex items-center justify-center gap-2" id="btn-continue-review" type="submit"><span class="material-symbols-outlined text-[18px]">verified_user</span><span class="">Continue to Review &amp; Authorize</span></button>
+<p class="text-[11px] text-center text-slate-400 mt-2 flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[13px]">lock</span>
+256-Bit TLS End-to-End Encryption • Instant RTGS / IPN Settlement
+</p>
+</div></form>
+</div>
+<!-- Transfer Limits & Security Progress Card (Right col) -->
+<div class="space-y-5">
+<div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm space-y-4">
+<h3 class="text-sm font-bold text-slate-900">Daily Quota &amp; Limits</h3>
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-slate-500 font-semibold">Daily Transfer Limit:</span>
+<span class="font-bold text-slate-900 font-mono">EGP 120,000.00</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-blue-600 h-2 rounded-full" id="daily-used-bar" style="width: 7%"></div>
+</div>
+<p class="text-[11px] text-slate-500 font-medium">Used today: <span class="text-slate-900 font-bold" id="daily-used-text">EGP 8,500.00</span> <span id="daily-used-percent">(7%)</span></p>
+</div>
+<div class="space-y-2 pt-3 border-t border-slate-100">
+<div class="flex justify-between text-xs">
+<span class="text-slate-500 font-semibold">Monthly Transfer Limit:</span>
+<span class="font-bold text-slate-900 font-mono">EGP 400,000.00</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+<div class="bg-blue-600 h-2 rounded-full" id="monthly-used-bar" style="width: 24%"></div>
+</div>
+<p class="text-[11px] text-slate-500 font-medium">Used this month: <span class="text-slate-900 font-bold" id="monthly-used-text">EGP 95,000.00</span> <span id="monthly-used-percent">(24%)</span></p>
+</div>
+<div class="pt-3 border-t border-slate-100 space-y-2 text-xs">
+<div class="flex items-center justify-between">
+<span class="text-slate-500 font-semibold">Single Txn Ceiling:</span>
+<span class="font-bold text-slate-900 font-mono">EGP 70,000.00</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-slate-500 font-semibold">Settlement Speed:</span>
+<span class="font-bold text-emerald-700">Instant (IPN / RTGS)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-slate-500 font-semibold">Own-account Fee:</span>
+<span class="font-bold text-emerald-700">EGP 0.00 (Free)</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-slate-500 font-semibold">Other Customers:</span>
+<span class="font-bold text-slate-900">0.1% (min 0.50, max 20)</span>
+</div>
+</div>
+</div>
+<!-- Instant IPN Badge Card -->
+<div class="bg-blue-50/80 rounded-2xl p-5 border border-blue-100 space-y-2 text-xs text-blue-900">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700 text-[20px]">bolt</span>
+<span class="font-extrabold text-sm">Instant Payment Network (IPN)</span>
+</div>
+<p class="text-[11px] text-blue-800 leading-relaxed">Connect your BTS account with InstaPay Egypt for instant 24/7 transfers to any Egyptian bank account, digital wallet, or Meeza card.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- ============================================================== -->
+<!-- VIEW 4: STATEMENTS -->
+<!-- ============================================================== -->
+<div class="view-container space-y-6" id="view-statements">
+<!-- Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Account Statements</h1>
+<p class="text-xs text-slate-500 mt-1">Filter and inspect historical ledger postings, export official monthly PDF e-statements, or download CSV data.</p>
+</div>
+<div class="flex items-center gap-2">
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 shadow-sm transition-colors" onclick="downloadPDFStatement()" type="button">
+<span class="material-symbols-outlined text-[16px] text-red-600">picture_as_pdf</span>
+<span class="">Export PDF</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-sm shadow-blue-700/20 transition-colors" onclick="downloadCSVReport()" type="button">
+<span class="material-symbols-outlined text-[16px]">download</span>
+<span class="">Download CSV</span>
+</button>
+</div>
+</div>
+<!-- Summary Ledger Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Debits</p>
+<p class="text-2xl font-extrabold text-slate-900 mt-1 font-mono" id="statementTotalDebits">-EGP 10,500.00</p>
+<p class="text-[11px] text-slate-500 mt-1" id="statementDebitCount">2 transactions recorded</p>
+</div>
+<div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Total Credits</p>
+<p class="text-2xl font-extrabold text-emerald-700 mt-1 font-mono" id="statementTotalCredits">+EGP 26,544.25</p>
+<p class="text-[11px] text-slate-500 mt-1" id="statementCreditCount">2 incoming credits</p>
+</div>
+<div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wide">Net Position (Selected Period)</p>
+<p class="text-2xl font-extrabold text-blue-700 mt-1 font-mono" id="statementNetPosition">+EGP 16,044.25</p>
+<p class="text-[11px] text-slate-500 mt-1" id="statementNetNote">Positive liquidity delta</p>
+</div>
+</div>
+<!-- Interactive Filter Bar -->
+<div class="bg-white p-4 rounded-2xl border border-slate-200/90 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 text-xs">
+<!-- Account Selector: Everyday Checking fully visible on single line -->
+<div class="flex items-center gap-2 min-w-[280px]">
+<label class="text-slate-400 font-bold shrink-0" for="statementAccountSelect">Account:</label>
+<select class="w-full py-1.5 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none truncate" id="statementAccountSelect" name="account">
+<option>Everyday Checking — EG40 •••• 7701</option>
+<option>High-Yield Savings — EG82 •••• 5519</option>
+<option>Growth Fixed Deposit — EG19 •••• 3341</option>
+<option>Student Checking — EG61 •••• 1092</option>
+</select>
+</div>
+<!-- Date range + type filters -->
+<form class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3" id="statementFilterForm" onsubmit="applyStatementFilters(event)">
+<div class="flex items-center gap-2">
+<label class="text-slate-400 font-bold shrink-0" for="statementStartDate">From:</label>
+<input class="py-1.5 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="statementStartDate" name="startDate" type="date">
+</div>
+<div class="flex items-center gap-2">
+<label class="text-slate-400 font-bold shrink-0" for="statementEndDate">To:</label>
+<input class="py-1.5 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="statementEndDate" name="endDate" type="date">
+</div>
+<div class="flex items-center gap-2">
+<label class="text-slate-400 font-bold shrink-0" for="statementTypeFilter">Type:</label>
+<select class="py-1.5 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="statementTypeFilter" name="type">
+<option value="all">All Types</option>
+<option value="deposit">Deposit</option>
+<option value="withdrawal">Withdrawal</option>
+<option value="transfer-in">Transfer In</option>
+<option value="transfer-out">Transfer Out</option>
+<option value="fee">Fee</option>
+<option value="interest">Interest</option>
+</select>
+</div>
+<button class="px-4 py-1.5 rounded-xl font-bold text-white bg-blue-700 hover:bg-blue-800 shadow-sm transition-colors" id="btn-apply-filters" type="submit">Apply Filters</button>
+<button class="px-4 py-1.5 rounded-xl font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" id="btn-reset-filters" onclick="resetStatementFilters()" type="button">Reset</button>
+<p class="text-[11px] text-red-600 font-semibold hidden w-full" id="statementFilterError" role="alert"></p>
+</form>
+</div>
+<!-- Full Ledger Table -->
+<div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs border-collapse">
+<thead>
+<tr class="bg-slate-50/80 text-slate-500 font-bold border-b border-slate-100">
+<th class="py-3 px-5">Date</th>
+<th class="py-3 px-4">Reference ID</th>
+<th class="py-3 px-4">Counterparty / Description</th>
+<th class="py-3 px-3">Channel</th>
+<th class="py-3 px-3">Category</th>
+<th class="py-3 px-4 text-right">Amount</th>
+<th class="py-3 px-5 text-right">Balance After</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-700" id="statementTableBody">
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-10-15" data-type="deposit">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">Today, 10:45 AM</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">TXN-884920-EG</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Monthly Salary - Biscuit Holding Egypt</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">IPN</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Payroll</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 24,500.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 482,450.00</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-10-12" data-type="withdrawal">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">12 Oct 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">ATM-339104-MD</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">ATM Cash Withdrawal - Maadi Branch ATM #2</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">ATM</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">Cash</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">-EGP 2,000.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 457,950.00</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-10-09" data-type="transfer-out">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">09 Oct 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">TRF-994012-ON</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Online Transfer - Apartment Rent (Landlord Co)</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Online</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Housing</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">-EGP 8,500.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 459,950.00</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-10-01" data-type="interest">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">01 Oct 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">SYS-INT-0925</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Monthly Savings Interest Credit (17.0% p.a.)</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">System</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Interest</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 2,044.25</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 468,450.00</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-09-28" data-type="transfer-in">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">28 Sep 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">TRF-883120-IN</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Incoming Transfer - Freelance Project (Hossam Adel)</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">IPN</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Transfer</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 6,500.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 466,405.75</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-09-24" data-type="withdrawal">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">24 Sep 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">ATM-228871-ZM</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">ATM Cash Withdrawal - Zamalek ATM #5</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">ATM</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">Cash</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">-EGP 1,500.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 459,905.75</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-09-20" data-type="transfer-out">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">20 Sep 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">TRF-771204-ON</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Online Transfer - Utilities (Cairo Electricity)</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Online</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Utilities</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">-EGP 3,200.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 461,405.75</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-09-15" data-type="deposit">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">15 Sep 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">TXN-775102-EG</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Monthly Salary - Biscuit Holding Egypt</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">IPN</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Payroll</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 24,500.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 464,605.75</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-09-10" data-type="transfer-in">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">10 Sep 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">TRF-669320-IN</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Incoming Transfer - Refund (Noon Egypt)</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">IPN</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Transfer</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 1,200.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 440,105.75</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-09-05" data-type="withdrawal">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">05 Sep 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">CSH-551907-MD</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Cash Withdrawal - Maadi Branch Counter</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Branch</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">Cash</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">-EGP 4,000.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 438,905.75</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-09-01" data-type="interest">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">01 Sep 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">SYS-INT-0825</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Monthly Savings Interest Credit (17.0% p.a.)</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">System</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Interest</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 1,980.50</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 442,905.75</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-08-25" data-type="deposit">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">25 Aug 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">DEP-440218-MD</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Cash Deposit - Maadi Branch Counter</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">Branch</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Deposit</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-emerald-600 whitespace-nowrap">+EGP 10,000.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 440,925.25</td>
+</tr>
+<tr class="statement-row hover:bg-slate-50/60 transition-colors" data-date="2025-08-20" data-type="fee">
+<td class="py-3.5 px-5 font-semibold text-slate-900 whitespace-nowrap">20 Aug 2025</td>
+<td class="py-3.5 px-4 font-mono text-slate-500">FEE-110208-SY</td>
+<td class="py-3.5 px-4 font-medium text-slate-900">Debit Card Issuance Fee</td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">System</span></td>
+<td class="py-3.5 px-3 whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Fee</span></td>
+<td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">-EGP 150.00</td>
+<td class="py-3.5 px-5 text-right font-mono text-slate-500 whitespace-nowrap">EGP 430,925.25</td>
+</tr>
+<tr class="hidden" id="statementEmptyRow">
+<td class="py-8 px-5 text-center text-slate-500 font-semibold" colspan="7">No transactions match your filters.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-4 bg-slate-50/60 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+<span class="">Official digital statement with verification hash: <strong class="font-mono text-slate-700">sha256-a94f8e...21b</strong></span>
+<div class="flex flex-wrap items-center gap-2">
+<label class="font-bold text-slate-500" for="statementPageSize">Rows per page:</label>
+<select class="py-1 px-2 rounded-lg border border-slate-200 bg-white text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="statementPageSize" name="pageSize" onchange="changeStatementPageSize()">
+<option value="5">5</option>
+<option value="10">10</option>
+<option value="25">25</option>
+</select>
+<button class="px-3 py-1 rounded-lg font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed" id="btn-prev-page" onclick="goToStatementPage(-1)" type="button">Previous</button>
+<span class="font-semibold text-slate-700" id="statementPageInfo">Ledger Page 1 of 1</span>
+<button class="px-3 py-1 rounded-lg font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed" id="btn-next-page" onclick="goToStatementPage(1)" type="button">Next</button>
+</div>
+</div>
+</div>
+</div>
+<!-- ============================================================== -->
+<!-- VIEW 5: MY PROFILE -->
+<!-- ============================================================== -->
+<div class="view-container space-y-6" id="view-profile">
+<!-- Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<div class="flex items-center gap-2.5">
+<h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">My Profile</h1>
+<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">verified</span> Customer Verified
+              </span>
+</div>
+<p class="text-xs text-slate-500 mt-1">View and manage your personal credentials and compliance verification. You can edit your phone number and statement preferences. Other fields are locked for compliance.</p>
+</div>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-white bg-blue-700 hover:bg-blue-800 text-xs font-bold shadow-sm shadow-blue-700/20 transition-all self-start md:self-auto" id="profileEditBtn" onclick="toggleProfileEditMode()" type="button">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+<span id="profileEditBtnText" class="">Edit Profile</span>
+</button>
+</div>
+<!-- Success Toast Notification (Dismissible) -->
+<div class="hidden bg-emerald-50 border border-emerald-200 text-emerald-900 p-4 rounded-2xl text-xs font-medium flex items-center justify-between shadow-sm" id="profileSuccessAlert">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[20px] text-emerald-700">check_circle</span>
+<span class=""><strong>Profile updated successfully!</strong> Your personal contact details have been updated in the BTS core ledger.</span>
+</div>
+<button class="text-emerald-700 hover:text-emerald-900" onclick="document.getElementById('profileSuccessAlert').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- Identity Overview Card -->
+<div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-2xl bg-blue-700 flex items-center justify-center text-white font-extrabold text-xl shadow-md shadow-blue-700/20 shrink-0" id="profileBigAvatar">
+              TM
+            </div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="text-lg font-bold text-slate-900" id="profileDisplayFullName">Tarek Mansour</h2>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                  Active • KYC Verified
+                </span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5 font-mono">Customer ID: BB-948201 • Member since 14 March 2021</p>
+<p class="text-xs text-slate-600 mt-1">Personal Banking Tier • Egyptian National</p>
+</div>
+</div>
+<div class="border-t md:border-t-0 md:border-l border-slate-100 pt-3 md:pt-0 md:pl-6 text-xs text-slate-500 space-y-1">
+<p class=""><strong>Primary Branch:</strong> Zamalek, Cairo (Branch 042)</p>
+<p class=""><strong>Base Currency:</strong> Egyptian Pound (EGP)</p>
+<p class=""><strong>Preferred Locale:</strong> Africa/Cairo (UTC+03:00)</p>
+</div>
+</div>
+<!-- Two Column Layout: Left Column (Personal Info) + Right Column (Account & Security) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Left Column: Personal Information (Editable) -->
+<div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm space-y-5">
+<div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+<div>
+<h3 class="text-sm font-bold text-slate-900">Personal Contact Information</h3>
+<p class="text-xs text-slate-500">Contact information can be kept up to date digitally.</p>
+</div>
+<span class="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">Core KYC</span>
+</div>
+<!-- Form -->
+<form class="space-y-4" id="profileEditForm" novalidate onsubmit="handleProfileSave(event)">
+<!-- Full Legal Name -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center">
+<label class="text-xs font-bold text-slate-700" for="inputProfileName">Full Legal Name</label>
+<span class="text-[10px] font-bold text-emerald-700 flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">check</span> Editable
+                  </span>
+</div>
+<input class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none transition-colors" disabled="" id="inputProfileName" aria-describedby="profileNameError" oninput="validateProfileName()" maxlength="100" name="fullName" type="text" value="Tarek Mansour">
+<p class="text-[11px] text-red-600 hidden" id="profileNameError" role="alert"></p>
+</div>
+<!-- Mobile Phone Number -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center">
+<label class="text-xs font-bold text-slate-700" for="inputProfilePhone">Mobile Phone Number</label>
+<span class="text-[10px] font-bold text-emerald-700 flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">check</span> Editable
+                  </span>
+</div>
+<input class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-100 text-slate-900 text-xs font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none transition-colors" disabled="" id="inputProfilePhone" aria-describedby="profilePhoneError" oninput="validateProfilePhone()" maxlength="100" name="phone" type="tel" value="+20 100 123 4567">
+<p class="text-[11px] text-red-600 hidden" id="profilePhoneError" role="alert"></p>
+</div>
+<!-- Registered Email Address (Locked) -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center">
+<label class="text-xs font-bold text-slate-700" for="inputProfileEmail">Registered Email Address</label>
+<span class="text-[10px] font-bold text-slate-500 flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">lock</span> Read-Only
+                  </span>
+</div>
+<input class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 text-xs cursor-not-allowed" id="inputProfileEmail" name="email" readonly="" type="email" value="tarek.mansour@example.com">
+<p class="text-[11px] text-slate-400">Email address cannot be changed online for compliance security. Please visit branch.</p>
+</div>
+<!-- National ID (Locked) -->
+<div class="space-y-1.5">
+<div class="flex justify-between items-center">
+<label class="text-xs font-bold text-slate-700" for="inputProfileNationalId">National ID / Civil Registry Gate</label>
+<span class="text-[10px] font-bold text-slate-500 flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">lock</span> Locked
+                  </span>
+</div>
+<input class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 text-xs font-mono cursor-not-allowed" id="inputProfileNationalId" name="nationalId" readonly="" type="text" value="29408150102948 • Validated">
+<p class="text-[11px] text-slate-400">Identity authenticated directly with the Egyptian Civil Registry authority.</p>
+</div>
+<!-- Action Buttons (Visible only in edit mode) -->
+<div class="hidden pt-3 border-t border-slate-100 flex items-center justify-end gap-2" id="profileEditActions">
+<button class="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="cancelProfileEdit()" type="button">Cancel</button>
+<button class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-sm shadow-blue-700/20" type="submit">Save Changes</button>
+</div>
+</form>
+</div>
+<!-- Right Column: Account Identification & Security Settings -->
+<div class="space-y-5">
+<!-- Card A: Account Identification -->
+<div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm space-y-3.5">
+<h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">Account Identification &amp; Regulatory Tier</h3>
+<div class="grid grid-cols-2 gap-3 text-xs">
+<div class="bg-slate-50 p-3 rounded-xl">
+<span class="text-slate-400 font-bold uppercase text-[10px]">Customer Identifier</span>
+<p class="font-mono font-bold text-slate-900 mt-0.5">BB-948201</p>
+</div>
+<div class="bg-slate-50 p-3 rounded-xl">
+<span class="text-slate-400 font-bold uppercase text-[10px]">Primary Checking IBAN</span>
+<p class="font-mono font-bold text-slate-900 mt-0.5">EG40 •••• 7701</p>
+</div>
+<div class="bg-slate-50 p-3 rounded-xl">
+<span class="text-slate-400 font-bold uppercase text-[10px]">Tax Residence</span>
+<p class="font-bold text-slate-900 mt-0.5">Arab Republic of Egypt</p>
+</div>
+<div class="bg-slate-50 p-3 rounded-xl">
+<span class="text-slate-400 font-bold uppercase text-[10px]">Statement Dispatch</span>
+<p class="font-bold text-slate-900 mt-0.5">Digital Monthly PDF</p>
+</div>
+</div>
+</div>
+<!-- Card B: Security & Login -->
+<div class="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm space-y-3.5">
+<h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">Security &amp; Active Session</h3>
+<div class="space-y-3 text-xs text-slate-600">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-slate-900">Password</p>
+<p class="text-[11px] text-slate-400">Last changed 3 months ago</p>
+</div>
+<button class="px-3 py-1 rounded-lg text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors" onclick="alert('Password reset link sent to registered phone via encrypted SMS.')" type="button">Change Password</button>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold text-slate-900">Two-Factor Auth (2FA)</p>
+<p class="text-[11px] text-emerald-700 font-semibold">Active via SMS to +20 100 •••• 4567</p>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Enabled</span>
+</div>
+<div class="pt-2 border-t border-slate-100">
+<p class="font-bold text-slate-900">Current Device &amp; IP</p>
+<p class="text-[11px] text-slate-500 font-mono mt-0.5">Chrome on macOS • Cairo, EG • IP: 197.34.88.140</p>
+</div>
+</div>
+</div>
+<!-- Card C: Relationship Officer -->
+<div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+<span class="material-symbols-outlined text-[20px]">support_agent</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-900">Sherif El-Badry</p>
+<p class="text-[11px] text-slate-500">Personal Banking Manager • Zamalek Branch</p>
+</div>
+</div>
+<button class="px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors" onclick="alert('Contacting Relationship Officer Sherif El-Badry at +20 2 2736 1000 ext. 420.')" type="button">Direct Line</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- ============================================================== -->
+<!-- MODALS -->
+<!-- ============================================================== -->
+<!-- 1. LOGOUT CONFIRMATION MODAL -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4" id="logoutModal">
+<div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+<div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-[26px]">logout</span>
+</div>
+<div class="text-center space-y-1">
+<h3 class="text-base font-bold text-slate-900">Confirm Log Out</h3>
+<p class="text-xs text-slate-500 leading-relaxed">Are you sure you want to end your secure banking session for BTS? You will be signed out and returned to the Authentication / Login screen.</p>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<button class="py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="closeLogoutModal()" type="button">Cancel</button>
+<button class="py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm shadow-red-600/20" onclick="confirmLogout()" type="button">Log Out &amp; Return to Login</button>
+</div>
+</div>
+</div>
+<!-- 2. OPEN NEW ACCOUNT MODAL -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4" id="openNewAccountModal">
+<div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5">
+<div class="flex items-center justify-between border-b border-slate-100 pb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-blue-700 text-[24px]">add_circle</span>
+<h3 class="text-base font-bold text-slate-900">Open New Bank Account</h3>
+</div>
+<button class="text-slate-400 hover:text-slate-700" onclick="closeNewAccountModal()" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs text-emerald-900" id="accountSlotsMessage">
+<p class="font-bold" id="accountSlotsText">You can open 1 more account(s) (4 / 5 used).</p>
+</div>
+<div class="hidden bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 space-y-1" id="accountLimitMessage">
+<p class="font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-amber-700">info</span>
+          <span id="quotaText">Personal Account Quota: 5 / 5 Limit Reached</span>
+        </p>
+<p class="text-[11px] text-amber-800 leading-relaxed">
+          You currently hold <span id="accountLimitCount">5</span> registered accounts (maximum per retail client). To add a new account, you can close an eligible active zero-balance account (such as Student Checking EG61..1092) or contact your relationship manager to upgrade to commercial banking.
+        </p>
+</div>
+<div class="bg-slate-50 p-3.5 rounded-xl text-xs text-slate-600 space-y-1.5">
+<p class="font-bold text-slate-800">Account Minimum Rules:</p>
+<ul class="list-disc list-inside space-y-1 text-[11px]">
+<li class=""><strong>Savings account:</strong> Min opening deposit &amp; ongoing balance EGP 1,000.00.</li>
+<li class=""><strong>Checking account:</strong> Min opening deposit EGP 0.00.</li>
+<li class=""><strong>Fixed Deposit:</strong> Min EGP 5,000.00 (12 or 36 months terms).</li>
+</ul>
+</div>
+<form class="space-y-3 text-xs" id="newAccountForm" novalidate onsubmit="handleNewAccount(event)">
+<div class="space-y-1">
+<label class="font-bold text-slate-700" for="newAccountType">Account Type</label>
+<select class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="newAccountType" name="accountType" onchange="updateNewAccountHint()">
+<option value="checking">Checking Account</option>
+<option value="savings">Savings Account</option>
+<option value="fixed">Fixed Deposit</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="font-bold text-slate-700" for="newAccountName">Account Nickname</label>
+<input class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 focus:ring-2 focus:ring-blue-600 focus:outline-none" id="newAccountName" maxlength="100" name="accountName" placeholder="e.g. Travel Savings" required="" type="text">
+</div>
+<div class="space-y-1 hidden" id="newAccountTermGroup">
+<label class="font-bold text-slate-700" for="newAccountTerm">Fixed Deposit Term</label>
+<select class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="newAccountTerm" name="term">
+<option value="12">12 months</option>
+<option value="36">36 months</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="font-bold text-slate-700" for="newAccountDeposit">Opening Deposit (EGP)</label>
+<input class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-mono font-bold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="newAccountDeposit" min="0" name="openingDeposit" placeholder="0.00" required="" step="0.01" type="number">
+<p class="text-[11px] text-slate-500" id="newAccountHint">Checking account: minimum opening deposit EGP 0.00.</p>
+</div>
+<p class="text-[11px] text-red-600 font-semibold hidden" id="newAccountError" role="alert"></p>
+<p class="text-[11px] text-emerald-700 font-semibold hidden" id="newAccountSuccess" role="status"></p>
+<div class="flex justify-end">
+<button class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors" id="btn-submit-new-account" type="submit">Open Account</button>
+</div>
+</form>
+<div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+<button class="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="closeNewAccountModal()" type="button">Close</button>
+<button class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors" onclick="closeNewAccountModal(); showView('accounts');" type="button">Manage Accounts &amp; Free Slot</button>
+</div>
+</div>
+</div>
+<!-- 3. CLOSE ACCOUNT CONFIRMATION MODAL -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4" id="closeAccountModal">
+<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+<div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+<span class="material-symbols-outlined text-[26px]">close_fullscreen</span>
+</div>
+<div class="text-center space-y-1">
+<h3 class="text-base font-bold text-slate-900">Close Bank Account</h3>
+<p class="text-xs text-slate-500 leading-relaxed" id="closeAccountSubtitle">
+          Are you sure you want to close account?
+        </p>
+</div>
+<div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-xs text-emerald-900">
+<p class="font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+          Policy Requirement Met
+        </p>
+<p class="text-[11px] text-emerald-800 mt-0.5">Account standing is ACTIVE and available balance is exactly EGP 0.00. Closure releases 1 quota slot.</p>
+</div>
+<div class="grid grid-cols-2 gap-2 pt-2">
+<button class="py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="closeCloseAccountModal()" type="button">Cancel</button>
+<button class="py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm shadow-red-600/20" onclick="executeAccountClosure()" type="button">Confirm Closure</button>
+</div>
+</div>
+</div>
+<!-- 4. ACCOUNT DETAILS MODAL -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4" id="detailsModal">
+<div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+<div class="flex items-center justify-between border-b border-slate-100 pb-3">
+<h3 class="text-base font-bold text-slate-900" id="detailsModalTitle">Account Details</h3>
+<button class="text-slate-400 hover:text-slate-700" onclick="closeDetailsModal()" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="space-y-3 text-xs">
+<div class="bg-slate-50 p-3 rounded-xl">
+<span class="text-slate-400 font-bold uppercase text-[10px]">IBAN / Account Number</span>
+<p class="font-mono font-bold text-slate-900 mt-0.5" id="detailsModalIBAN"></p>
+</div>
+<div class="bg-slate-50 p-3 rounded-xl">
+<span class="text-slate-400 font-bold uppercase text-[10px]">Current Balance</span>
+<p class="font-mono font-bold text-blue-700 text-sm mt-0.5" id="detailsModalBalance"></p>
+</div>
+<div class="bg-slate-50 p-3 rounded-xl">
+<span class="text-slate-400 font-bold uppercase text-[10px]">Standing Status</span>
+<p class="font-bold text-slate-900 mt-0.5" id="detailsModalStatus"></p>
+</div>
+<p class="text-slate-600 text-xs leading-relaxed" id="detailsModalDesc"></p>
+</div>
+<div class="pt-2 border-t border-slate-100 flex justify-end">
+<button class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors" onclick="closeDetailsModal()" type="button">Close</button>
+</div>
+</div>
+</div>
+<!-- 5. QUICK DEPOSIT / WITHDRAW MODAL -->
+<!-- 6. TRANSFER REVIEW & CONFIRMATION MODAL -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4" id="transfer-review-modal" role="dialog" aria-modal="true" aria-labelledby="transferReviewModalTitle">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 space-y-5 relative max-h-[90vh] overflow-y-auto">
+    <!-- Step 1: Review State -->
+    <div id="transferReviewStep">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900" id="transferReviewModalTitle">Transfer Review &amp; Confirmation</h3>
+            <p class="text-[11px] text-slate-500">Please verify transaction details prior to authorization</p>
+          </div>
+        </div>
+        <button class="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors" onclick="closeTransferReviewModal()" aria-label="Close modal" type="button">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Simulation Alert Disclaimer -->
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 flex items-start gap-2 mt-4">
+        <span class="material-symbols-outlined text-amber-700 text-[18px] shrink-0 mt-0.5">info</span>
+        <p class="text-[11px] text-amber-800 leading-relaxed">
+          <strong class="font-bold">Prototype Simulation:</strong> No real funds or financial transactions will be processed.
+        </p>
+      </div>
+
+      <!-- Transaction Breakdown Fields -->
+      <div class="space-y-3 text-xs mt-4">
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100 space-y-2.5">
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 font-semibold">Source Account:</span>
+            <span class="font-bold text-slate-900 text-right font-mono text-[12px] max-w-[260px]" id="reviewSourceAccount">Everyday Checking — EG40 •••• 7701</span>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 font-semibold">Recipient Name:</span>
+            <span class="font-bold text-slate-900 text-right" id="reviewRecipientName">-</span>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 font-semibold">Recipient Account Number:</span>
+            <span class="font-bold text-slate-900 text-right font-mono text-[12px]" id="reviewRecipientIban">-</span>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 font-semibold">Transfer Type / Network:</span>
+            <span class="font-bold text-blue-700 text-right" id="reviewNetwork">BTS Internal</span>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 font-semibold">Reference Note:</span>
+            <span class="text-slate-700 text-right italic" id="reviewDescription">None provided</span>
+          </div>
+        </div>
+
+        <!-- Financial Calculation Summary Card -->
+        <div class="bg-blue-50/60 rounded-xl p-3.5 border border-blue-100 space-y-2 text-xs">
+          <div class="flex justify-between items-center text-slate-700">
+            <span class="font-medium">Transfer Amount:</span>
+            <span class="font-bold font-mono text-slate-900 text-[13px]" id="reviewAmount">EGP 0.00</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-700">
+            <span class="font-medium flex items-center gap-1">
+              Transfer Fee:
+              <span class="text-[10px] text-slate-400 cursor-help" id="reviewFeeExplanation">(0.1%, min 0.50, max 20)</span>
+            </span>
+            <span class="font-bold font-mono text-slate-900 text-[13px]" id="reviewFee">EGP 0.00</span>
+          </div>
+          <div class="pt-2 border-t border-blue-200/80 flex justify-between items-center text-sm">
+            <span class="font-extrabold text-slate-900">Total Debit Amount:</span>
+            <span class="font-extrabold font-mono text-blue-700 text-base" id="reviewTotalDebit">EGP 0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-5">
+        <button class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors" onclick="closeTransferReviewModal()" type="button">
+          Cancel
+        </button>
+        <button class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-sm shadow-blue-700/20 inline-flex items-center gap-2" id="confirmTransferActionBtn" onclick="executeSimulatedTransfer()" type="button">
+          <span class="material-symbols-outlined text-[18px]">check_circle</span>
+          Confirm Transfer
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Simulated Success State -->
+    <div class="hidden text-center space-y-4 py-2" id="transferSuccessStep">
+      <div class="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto shadow-sm">
+        <span class="material-symbols-outlined text-[32px]">check</span>
+      </div>
+      <div class="space-y-1">
+        <h3 class="text-lg font-extrabold text-slate-900">Transfer Successful</h3>
+        <p class="text-xs text-slate-500">Your simulated payment request has been settled.</p>
+      </div>
+      <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-xs space-y-2 text-left">
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-semibold">Reference ID:</span>
+          <span class="font-mono font-bold text-slate-800" id="successRefId">TXN-739102-BTS</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-semibold">Amount Debited:</span>
+          <span class="font-mono font-bold text-emerald-700" id="successDebitedAmount">EGP 0.00</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-semibold">Timestamp:</span>
+          <span class="font-mono text-slate-600" id="successTimestamp">Just now</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-slate-500 font-semibold">Status:</span>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Settled (Instant IPN)</span>
+        </div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-[11px] text-amber-800 leading-relaxed text-left flex items-start gap-2">
+        <span class="material-symbols-outlined text-amber-700 text-[16px] shrink-0 mt-0.5">info</span>
+        <span class="">Prototype Simulation: No actual banking transactions or account balance deductions have occurred.</span>
+      </div>
+      <div class="pt-2">
+        <button class="w-full py-2.5 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-sm shadow-blue-700/20" onclick="resetTransferAfterSuccess()" type="button">
+          Done / Back to Transfers
+        </button>
+      </div>
+    </div>
+  </div>
+</div><div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4" id="quickActionModal">
+<div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+<div class="flex items-center justify-between border-b border-slate-100 pb-3">
+<h3 class="text-base font-bold text-slate-900" id="quickActionTitle">Quick Action</h3>
+<button class="text-slate-400 hover:text-slate-700" onclick="closeQuickActionModal()" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<form class="space-y-3 text-xs" id="deposit-form" novalidate onsubmit="handleDepositSubmit(event)">
+<div class="space-y-1">
+<label class="font-bold text-slate-700" for="deposit-account">Select Account</label>
+<select class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="deposit-account" name="depositAccount">
+<option value="checking">Everyday Checking (EG40 •••• 7701)</option>
+<option value="savings">High-Yield Savings (EG82 •••• 5519)</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="font-bold text-slate-700" for="deposit-amount">Amount (EGP)</label>
+<input class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-mono font-bold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="deposit-amount" name="depositAmount" min="0.01" step="0.01" placeholder="e.g. 1000.00" required="" type="number">
+<p class="text-[11px] text-red-600 hidden" id="deposit-validation-error" role="alert"></p>
+</div>
+<div class="pt-2 flex justify-end gap-2">
+<button class="px-3.5 py-2 rounded-xl font-bold text-slate-700 bg-slate-100" id="btn-deposit-cancel" onclick="closeQuickActionModal()" type="button">Cancel</button>
+<button class="px-4 py-2 rounded-xl font-bold text-white bg-blue-700 hover:bg-blue-800" id="btn-deposit-submit" type="submit">Submit Simulation</button>
+</div>
+</form>
+<form class="space-y-3 text-xs hidden" id="withdrawal-form" novalidate onsubmit="handleWithdrawalSubmit(event)">
+<div class="space-y-1">
+<label class="font-bold text-slate-700" for="withdrawal-account">Select Account</label>
+<select class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-semibold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="withdrawal-account" name="withdrawalAccount">
+<option value="checking">Everyday Checking (EG40 •••• 7701)</option>
+<option value="savings">High-Yield Savings (EG82 •••• 5519)</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="font-bold text-slate-700" for="withdrawal-amount">Amount (EGP)</label>
+<input class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 font-mono font-bold focus:ring-2 focus:ring-blue-600 focus:outline-none" id="withdrawal-amount" name="withdrawalAmount" min="0.01" step="0.01" placeholder="e.g. 1000.00" required="" type="number">
+<p class="text-[11px] text-red-600 hidden" id="withdrawal-validation-error" role="alert"></p>
+</div>
+<div class="pt-2 flex justify-end gap-2">
+<button class="px-3.5 py-2 rounded-xl font-bold text-slate-700 bg-slate-100" id="btn-withdrawal-cancel" onclick="closeQuickActionModal()" type="button">Cancel</button>
+<button class="px-4 py-2 rounded-xl font-bold text-white bg-blue-700 hover:bg-blue-800" id="btn-withdrawal-submit" type="submit">Submit Simulation</button>
+</div>
+</form>
+</div>
+</div>
+<!-- ============================================================== -->
+<!-- VANILLA JAVASCRIPT: SPA VIEW SWITCHING & INTERACTIVITY -->
+<!-- ============================================================== -->
+<script>
+    // VIEW SWITCHER ENGINE
+    function showView(viewId) {
+      // 1. Hide all views
+      const containers = document.querySelectorAll('.view-container');
+      containers.forEach(el => el.classList.remove('active-view'));
+
+      // 2. Show targeted view
+      const target = document.getElementById('view-' + viewId);
+      if (target) {
+        target.classList.add('active-view');
+      }
+
+      // 3. Update sidebar buttons
+      const sidebarItems = document.querySelectorAll('.sidebar-item');
+      sidebarItems.forEach(btn => {
+        const btnView = btn.getAttribute('data-view');
+        if (btnView === viewId) {
+          btn.className = 'sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-white bg-blue-700 shadow-sm shadow-blue-700/25';
+        } else {
+          btn.className = 'sidebar-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-100';
+        }
+      });
+
+      // 4. Scroll smoothly to top of main view
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // BALANCE TOGGLE
+    (function initBalanceToggle() {
+      const toggleBtn = document.getElementById('toggleBalanceBtn');
+      const balanceEl = document.getElementById('balanceDisplay');
+      const balanceIcon = document.getElementById('balanceIcon');
+      const toggleText = document.getElementById('balanceToggleText');
+      const subCards = document.querySelectorAll('.dashboard-sub-balance');
+
+      let isHidden = false;
+      const originalTotal = 'EGP 482,450.00';
+      const originalSubs = Array.from(subCards).map(el => el.textContent.trim());
+
+      if (toggleBtn && balanceEl) {
+        toggleBtn.addEventListener('click', () => {
+          isHidden = !isHidden;
+          if (isHidden) {
+            balanceEl.textContent = '••••••••••••';
+            balanceIcon.textContent = 'visibility_off';
+            toggleText.textContent = 'Show Balance';
+            subCards.forEach(el => el.textContent = '••••••••');
+          } else {
+            balanceEl.textContent = originalTotal;
+            balanceIcon.textContent = 'visibility';
+            toggleText.textContent = 'Hide Balance';
+            subCards.forEach((el, idx) => el.textContent = originalSubs[idx] || '');
+          }
+        });
+      }
+    })();
+
+    // COPY TO CLIPBOARD
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+        alert('IBAN copied to clipboard: ' + text);
+      } else {
+        alert('Copied: ' + text);
+      }
+    }
+
+    // ACCOUNTS FILTER & SEARCH
+    function filterAccounts(filterType, btnEl) {
+      // update pill style
+      const pills = document.querySelectorAll('.account-filter-btn');
+      pills.forEach(p => {
+        p.className = 'account-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200';
+      });
+      btnEl.className = 'account-filter-btn px-3 py-1 rounded-full text-xs font-bold bg-blue-700 text-white';
+
+      const cards = document.querySelectorAll('#accountsListGrid .account-card');
+      cards.forEach(card => {
+        const status = card.getAttribute('data-status') || '';
+        const balance = card.getAttribute('data-balance') || '';
+        if (filterType === 'all') {
+          card.style.display = '';
+        } else if (filterType === 'active') {
+          card.style.display = status.includes('active') ? '' : 'none';
+        } else if (filterType === 'frozen') {
+          card.style.display = status.includes('frozen') ? '' : 'none';
+        } else if (filterType === 'zero') {
+          card.style.display = balance === '0' ? '' : 'none';
+        }
+      });
+    }
+
+    function searchAccounts(query) {
+      const term = query.toLowerCase().trim();
+      const cards = document.querySelectorAll('#accountsListGrid .account-card');
+      cards.forEach(card => {
+        const searchData = (card.getAttribute('data-search') || '').toLowerCase();
+        if (searchData.includes(term)) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // PROFILE EDIT MODE
+    let isProfileEditing = false;
+    function toggleProfileEditMode() {
+      isProfileEditing = !isProfileEditing;
+      const nameInput = document.getElementById('inputProfileName');
+      const phoneInput = document.getElementById('inputProfilePhone');
+      const actions = document.getElementById('profileEditActions');
+      const btnText = document.getElementById('profileEditBtnText');
+
+      if (isProfileEditing) {
+        profileSaved = { name: nameInput.value, phone: phoneInput.value };   // values to restore on Cancel
+        nameInput.disabled = false;
+        phoneInput.disabled = false;
+        nameInput.classList.remove('bg-slate-100');
+        nameInput.classList.add('bg-white');
+        phoneInput.classList.remove('bg-slate-100');
+        phoneInput.classList.add('bg-white');
+        actions.classList.remove('hidden');
+        btnText.textContent = 'Editing Mode';
+        nameInput.focus();
+      } else {
+        cancelProfileEdit();
+      }
+    }
+
+    function cancelProfileEdit() {
+      isProfileEditing = false;
+      const nameInput = document.getElementById('inputProfileName');
+      const phoneInput = document.getElementById('inputProfilePhone');
+      if (profileSaved) {                       // put back the last saved values
+        nameInput.value = profileSaved.name;
+        phoneInput.value = profileSaved.phone;
+      }
+      const actions = document.getElementById('profileEditActions');
+      const btnText = document.getElementById('profileEditBtnText');
+
+      nameInput.disabled = true;
+      phoneInput.disabled = true;
+      nameInput.classList.add('bg-slate-100');
+      nameInput.classList.remove('bg-white');
+      phoneInput.classList.add('bg-slate-100');
+      phoneInput.classList.remove('bg-white');
+      actions.classList.add('hidden');
+      btnText.textContent = 'Edit Profile';
+      setProfileFieldError('inputProfileName', 'profileNameError', '');
+      setProfileFieldError('inputProfilePhone', 'profilePhoneError', '');
+    }
+
+    // ---- Profile validation: the error appears under the field and disappears when the value is valid ----
+    let profileSaved = null;
+
+    function setProfileFieldError(inputId, errorId, message) {
+      const input = document.getElementById(inputId);
+      const error = document.getElementById(errorId);
+      if (message) {
+        error.textContent = message;
+        error.classList.remove('hidden');
+        input.classList.remove('border-slate-200');
+        input.classList.add('border-red-400');
+        input.setAttribute('aria-invalid', 'true');
+      } else {
+        error.textContent = '';
+        error.classList.add('hidden');
+        input.classList.remove('border-red-400');
+        input.classList.add('border-slate-200');
+        input.removeAttribute('aria-invalid');
+      }
+      return !message;
+    }
+
+    function validateProfileName() {
+      const value = document.getElementById('inputProfileName').value.trim();
+      let message = '';
+      if (value.length < 3) {
+        message = 'Name must be at least 3 characters.';
+      } else if (!/^[\p{L} .'-]+$/u.test(value)) {
+        message = 'Name can contain letters and spaces only.';
+      }
+      return setProfileFieldError('inputProfileName', 'profileNameError', message);
+    }
+
+    function validateProfilePhone() {
+      const value = document.getElementById('inputProfilePhone').value.trim();
+      const digits = value.replace(/[ +\-]/g, '');
+      let message = '';
+      if (!/^[0-9]{10,15}$/.test(digits)) {
+        message = 'Enter a valid phone number (10 to 15 digits), e.g. +20 100 123 4567.';
+      }
+      return setProfileFieldError('inputProfilePhone', 'profilePhoneError', message);
+    }
+
+    function handleProfileSave(e) {
+      e.preventDefault();
+      const newName = document.getElementById('inputProfileName').value.trim();
+      const newPhone = document.getElementById('inputProfilePhone').value.trim();
+
+      // Validation with a message under each field (same checks as the live validation)
+      const nameOk = validateProfileName();
+      const phoneOk = validateProfilePhone();
+      if (!nameOk || !phoneOk) return;
+      profileSaved = { name: newName, phone: newPhone };   // these are now the saved values
+
+      if (newName) {
+        document.getElementById('headerUserName').textContent = newName;
+        document.getElementById('dropdownUserName').textContent = newName;
+        document.getElementById('profileDisplayFullName').textContent = newName;
+        document.getElementById('bannerRecordName').textContent = newName;
+        document.getElementById('dashboardGreeting').textContent = 'Good morning, ' + newName.split(' ')[0] + '!';
+
+        const initials = newName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        document.getElementById('headerUserInitials').textContent = initials;
+        document.getElementById('profileBigAvatar').textContent = initials;
+      }
+
+      if (newPhone) {
+        document.getElementById('bannerRecordPhone').textContent = newPhone;
+      }
+
+      cancelProfileEdit();
+
+      const toast = document.getElementById('profileSuccessAlert');
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 4000);
+    }
+
+    // TRANSACTIONS FORM ACTIONS
+    // Shared money check for every amount input (deposit, withdrawal, transfer, account opening).
+    // Returns an error message, or '' when the amount is valid. Accepts decimals like 500.01 / 1000.50.
+    function checkMoneyAmount(rawValue, minAmount) {
+      const text = String(rawValue).trim();
+      if (text === '' || isNaN(Number(text))) return 'Please enter a valid amount.';
+      const amount = Number(text);
+      if (amount < 0) return 'The amount cannot be negative.';
+      if (amount < minAmount || (minAmount > 0 && amount === 0)) {
+        return 'The minimum amount is EGP ' + minAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }) + '.';
+      }
+      if (amount === 0 && minAmount === 0) return '';
+      if (Math.round(amount * 100) / 100 !== amount) return 'The amount can have at most 2 decimal places.';
+      return '';
+    }
+
+    // Quick amount buttons ("+500", "+1,000" ...) ADD to the current value of the same #transfer-amount input.
+    // The "Max" button passes replace = true and sets the amount directly.
+    function setTransferAmount(val, replace) {
+      const input = document.getElementById('transfer-amount');
+      const current = replace ? 0 : (parseFloat(input.value) || 0);
+      const total = Math.round((current + val) * 100) / 100;
+      input.value = Math.min(total, SINGLE_TRANSFER_LIMIT);
+    }
+
+    // STATEMENTS DOWNLOADS
+    function downloadPDFStatement() {
+      alert('Generating official Biscuit Bank monthly e-Statement PDF with central bank stamp...');
+    }
+
+    function downloadCSVReport() {
+      alert('Exporting historical ledger entries as .CSV file...');
+    }
+
+    // MODAL CONTROLS
+    function openLogoutModal() {
+      document.getElementById('logoutModal').classList.remove('hidden');
+    }
+    function closeLogoutModal() {
+      document.getElementById('logoutModal').classList.add('hidden');
+    }
+    function confirmLogout() {
+      closeLogoutModal();
+      // Session cleared by Spring Security /logout
+      window.location.href = 'index.html';
+    }
+
+    // ---- New account rules (prototype demo data) ----
+    // The real account count and the 5-account limit must be checked by the backend (Spring Boot).
+    const ACCOUNT_QUOTA_MAX = 5;      // maximum simultaneous open accounts per retail customer
+    let accountQuotaUsed = 4;         // demo: the customer starts with 4 open accounts (1 slot free)
+    const MIN_OPENING_DEPOSIT = { checking: 0, savings: 1000, fixed: 5000 };
+    const TYPE_LABEL = { checking: 'Checking account', savings: 'Savings account', fixed: 'Fixed deposit' };
+
+    function updateQuotaBanner() {
+      const reached = accountQuotaUsed >= ACCOUNT_QUOTA_MAX;
+      const free = ACCOUNT_QUOTA_MAX - accountQuotaUsed;
+
+      // Modal: the "maximum reached" message is a separate state. It shows ONLY when the count reaches 5.
+      document.getElementById('accountLimitMessage').classList.toggle('hidden', !reached);
+      document.getElementById('accountSlotsMessage').classList.toggle('hidden', reached);
+      document.getElementById('quotaText').textContent = 'Personal Account Quota: ' + accountQuotaUsed + ' / ' + ACCOUNT_QUOTA_MAX + ' Limit Reached';
+      document.getElementById('accountLimitCount').textContent = accountQuotaUsed;
+      document.getElementById('accountSlotsText').textContent =
+        'You can open ' + free + ' more account(s) (' + accountQuotaUsed + ' / ' + ACCOUNT_QUOTA_MAX + ' used).';
+      document.getElementById('btn-submit-new-account').disabled = reached;
+
+      // Dashboard + My Accounts: same numbers everywhere
+      document.getElementById('dashQuotaText').textContent = 'Account Limit: ' + accountQuotaUsed + ' of ' + ACCOUNT_QUOTA_MAX + ' active accounts used';
+      document.getElementById('acctQuotaCount').textContent = accountQuotaUsed + ' / ' + ACCOUNT_QUOTA_MAX + ' Accounts';
+      document.getElementById('acctQuotaNote').textContent = reached ? 'Maximum limit reached (0 slots free)' : free + ' slot(s) free';
+    }
+
+    function updateNewAccountHint() {
+      const type = document.getElementById('newAccountType').value;
+      const min = MIN_OPENING_DEPOSIT[type];
+      document.getElementById('newAccountDeposit').min = min;
+      document.getElementById('newAccountHint').textContent =
+        TYPE_LABEL[type] + ': minimum opening deposit EGP ' + min.toLocaleString('en-US', { minimumFractionDigits: 2 }) + '.';
+      // The term list is visible ONLY for a Fixed Deposit
+      document.getElementById('newAccountTermGroup').classList.toggle('hidden', type !== 'fixed');
+    }
+
+    function handleNewAccount(e) {
+      e.preventDefault();
+      const errorEl = document.getElementById('newAccountError');
+      const successEl = document.getElementById('newAccountSuccess');
+      errorEl.classList.add('hidden');
+      successEl.classList.add('hidden');
+
+      const type = document.getElementById('newAccountType').value;
+      const name = document.getElementById('newAccountName').value.trim();
+      const depositText = document.getElementById('newAccountDeposit').value;
+
+      function fail(message) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+      }
+
+      // 1) quota (the real check is on the server)
+      if (accountQuotaUsed >= ACCOUNT_QUOTA_MAX) {
+        fail('Account limit reached (' + accountQuotaUsed + ' / ' + ACCOUNT_QUOTA_MAX + '). Close an eligible zero-balance account first.');
+        return;
+      }
+      // 2) nickname
+      if (name.length < 2) {
+        fail('Please enter an account nickname (at least 2 characters).');
+        return;
+      }
+      // 3) opening deposit: number, not negative, 2 decimals max, and the minimum for the account type
+      const minDeposit = MIN_OPENING_DEPOSIT[type];
+      const moneyError = checkMoneyAmount(depositText, minDeposit);
+      if (moneyError) {
+        fail('Opening deposit: ' + moneyError.replace('The minimum amount is', 'the minimum for a ' + TYPE_LABEL[type].toLowerCase() + ' is'));
+        return;
+      }
+
+      accountQuotaUsed = accountQuotaUsed + 1;
+      updateQuotaBanner();
+      const term = (type === 'fixed') ? ', ' + document.getElementById('newAccountTerm').value + ' months' : '';
+      successEl.textContent = '"' + name + '" (' + TYPE_LABEL[type] + term + ') was opened successfully. Accounts: ' + accountQuotaUsed + ' / ' + ACCOUNT_QUOTA_MAX + '.';
+      successEl.classList.remove('hidden');
+      document.getElementById('newAccountForm').reset();
+      updateNewAccountHint();
+    }
+
+    function openNewAccountModal() {
+      updateQuotaBanner();
+      updateNewAccountHint();
+      document.getElementById('newAccountError').classList.add('hidden');
+      document.getElementById('newAccountSuccess').classList.add('hidden');
+      document.getElementById('openNewAccountModal').classList.remove('hidden');
+    }
+    function closeNewAccountModal() {
+      document.getElementById('openNewAccountModal').classList.add('hidden');
+    }
+
+    let accountToCloseTitle = '';
+    let accountToCloseIban = '';
+    const closedAccounts = [];          // each account can be closed only once
+    function openCloseAccountModal(title, iban) {
+      accountToCloseTitle = title;
+      accountToCloseIban = iban;
+      document.getElementById('closeAccountSubtitle').textContent = 'Are you sure you want to close ' + title + ' (' + iban + ')?';
+      document.getElementById('closeAccountModal').classList.remove('hidden');
+    }
+    function closeCloseAccountModal() {
+      document.getElementById('closeAccountModal').classList.add('hidden');
+    }
+    function executeAccountClosure() {
+      closeCloseAccountModal();
+      if (closedAccounts.indexOf(accountToCloseIban) !== -1) return;   // already closed: do not release a second slot
+      closedAccounts.push(accountToCloseIban);
+      if (accountQuotaUsed > 0) { accountQuotaUsed = accountQuotaUsed - 1; }
+      updateQuotaBanner();
+
+      // lock the Close button of that account card
+      document.querySelectorAll('button[onclick^="openCloseAccountModal"]').forEach(function (btn) {
+        if (btn.getAttribute('onclick').indexOf(accountToCloseIban) !== -1) {
+          btn.disabled = true;
+          btn.classList.add('opacity-50', 'cursor-not-allowed');
+          const label = btn.querySelector('span:last-child');
+          if (label) label.textContent = 'Closed';
+        }
+      });
+      alert('Account closure completed successfully. 1 account quota slot has been released in your profile!');
+    }
+
+    function openDetailsModal(title, iban, balance, status, desc) {
+      document.getElementById('detailsModalTitle').textContent = title;
+      document.getElementById('detailsModalIBAN').textContent = iban;
+      document.getElementById('detailsModalBalance').textContent = balance;
+      document.getElementById('detailsModalStatus').textContent = status;
+      document.getElementById('detailsModalDesc').textContent = desc;
+      document.getElementById('detailsModal').classList.remove('hidden');
+    }
+    function closeDetailsModal() {
+      document.getElementById('detailsModal').classList.add('hidden');
+    }
+
+    // ---- Deposit / Withdrawal: one modal, two separate forms (own ids: deposit-* and withdrawal-*) ----
+    function resetQuickActionForms() {
+      ['deposit', 'withdrawal'].forEach(function (kind) {
+        document.getElementById(kind + '-form').reset();
+        document.getElementById(kind + '-validation-error').classList.add('hidden');
+      });
+    }
+    function showQuickActionForm(kind) {
+      const isDeposit = (kind === 'deposit');
+      document.getElementById('quickActionTitle').textContent = isDeposit ? 'Quick Deposit Simulation' : 'Quick Withdrawal Simulation';
+      document.getElementById('deposit-form').classList.toggle('hidden', !isDeposit);
+      document.getElementById('withdrawal-form').classList.toggle('hidden', isDeposit);
+      resetQuickActionForms();
+      document.getElementById('quickActionModal').classList.remove('hidden');
+    }
+    function openDepositModal() { showQuickActionForm('deposit'); }
+    function openWithdrawModal() { showQuickActionForm('withdrawal'); }
+    function closeQuickActionModal() {
+      document.getElementById('quickActionModal').classList.add('hidden');
+      resetQuickActionForms();
+    }
+    function submitQuickAction(kind) {
+      const errorEl = document.getElementById(kind + '-validation-error');
+      const message = checkMoneyAmount(document.getElementById(kind + '-amount').value, 0.01);   // min 0.01, decimals allowed
+      if (message) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      errorEl.classList.add('hidden');
+      closeQuickActionModal();
+      alert('Transaction simulated successfully. Ledger balances updated.');
+    }
+    function handleDepositSubmit(e) { e.preventDefault(); submitQuickAction('deposit'); }
+    function handleWithdrawalSubmit(e) { e.preventDefault(); submitQuickAction('withdrawal'); }
+
+    // Close header dropdown when clicked outside
+    window.addEventListener('click', function(e) {
+      const trigger = document.getElementById('profileDropdownTrigger');
+      const menu = document.getElementById('profileDropdownMenu');
+      if (trigger && menu && !trigger.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+  </script>
+
+
+
+
+
+
+
+
+<script>
+    // TRANSFER REVIEW & MODAL INTERACTION LOGIC
+    // PROTOTYPE NOTE: the limits, the fee and the "own account" check below only SIMULATE the rules in the
+    // browser. The real daily / monthly totals, fees and account ownership must be calculated and enforced
+    // by the backend (Spring Boot). The browser can never be trusted to enforce a limit.
+    let currentPendingTransfer = null;
+
+    // Transfer limits (EGP)
+    const SINGLE_TRANSFER_LIMIT = 70000;
+    const DAILY_TRANSFER_LIMIT = 120000;
+    const MONTHLY_TRANSFER_LIMIT = 400000;
+    // Demo totals that are already used (they grow after each confirmed simulated transfer)
+    let dailyUsed = 8500;
+    let monthlyUsed = 95000;
+
+    // Fee rules: free between the customer's own accounts, otherwise 0.1% (min 0.50, max 20.00)
+    const FEE_RATE = 0.001;
+    const FEE_MIN = 0.5;
+    const FEE_MAX = 20;
+
+    // Demo data (12-digit account numbers). Transfers between these accounts are "same customer" = free.
+    const SOURCE_ACCOUNT_NUMBERS = { checking: '100000007701', savings: '100000009904' };
+    const OWN_ACCOUNT_NUMBERS = ['100000007701', '100000009904', '100000005519', '100000003341', '100000001092'];
+    const ALLOWED_TRANSFER_TYPES = ['bts-internal', 'ach', 'ipn'];
+
+    function round2(n) {
+      return Math.round(n * 100) / 100;
+    }
+
+    function formatEGP(amount) {
+      return 'EGP ' + Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Refresh every place that shows the daily / monthly numbers
+    function renderTransferLimits() {
+      const dailyPct = Math.min(100, Math.round(dailyUsed / DAILY_TRANSFER_LIMIT * 100));
+      const monthlyPct = Math.min(100, Math.round(monthlyUsed / MONTHLY_TRANSFER_LIMIT * 100));
+      document.getElementById('transfer-daily-remaining').textContent = 'Daily remaining quota: ' + formatEGP(DAILY_TRANSFER_LIMIT - dailyUsed);
+      document.getElementById('daily-used-text').textContent = formatEGP(dailyUsed);
+      document.getElementById('daily-used-percent').textContent = '(' + dailyPct + '%)';
+      document.getElementById('daily-used-bar').style.width = dailyPct + '%';
+      document.getElementById('monthly-used-text').textContent = formatEGP(monthlyUsed);
+      document.getElementById('monthly-used-percent').textContent = '(' + monthlyPct + '%)';
+      document.getElementById('monthly-used-bar').style.width = monthlyPct + '%';
+    }
+
+    function closeTransferReviewModal() {
+      const modal = document.getElementById('transfer-review-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function openTransferReviewModal() {
+      const modal = document.getElementById('transfer-review-modal');
+      if (modal) {
+        document.getElementById('transferReviewStep').classList.remove('hidden');
+        document.getElementById('transferSuccessStep').classList.add('hidden');
+        modal.classList.remove('hidden');
+      }
+    }
+
+    // Fee = 0 for the customer's own accounts, otherwise 0.1% limited to 0.50 - 20.00
+    function calculateTransferFee(amount, recipientAccount) {
+      if (OWN_ACCOUNT_NUMBERS.indexOf(recipientAccount) !== -1) {
+        return { fee: 0, isOwn: true };
+      }
+      let computed = amount * FEE_RATE;
+      if (computed < FEE_MIN) computed = FEE_MIN;
+      if (computed > FEE_MAX) computed = FEE_MAX;
+      return { fee: round2(computed), isOwn: false };
+    }
+
+    function showTransferError(message, focusId) {
+      const box = document.getElementById('transfer-validation-error');
+      const msg = document.getElementById('transferFormErrorMessage');
+      if (msg) msg.textContent = message;
+      if (box) box.classList.remove('hidden');
+      const field = focusId ? document.getElementById(focusId) : null;
+      if (field) field.focus();
+    }
+
+    function hideTransferError() {
+      const box = document.getElementById('transfer-validation-error');
+      if (box) box.classList.add('hidden');
+    }
+
+    // The form uses onsubmit="handleTransferSubmit(event)". It validates, then opens the review window.
+    function handleTransferSubmit(e) {
+      e.preventDefault();
+      hideTransferError();
+
+      const sourceEl = document.getElementById('transfer-from-account');
+      const accountEl = document.getElementById('transfer-recipient-account');
+      const nameEl = document.getElementById('transfer-recipient-name');
+      const typeEl = document.getElementById('transfer-type');
+      const amountEl = document.getElementById('transfer-amount');
+      const memoEl = document.getElementById('transfer-memo');
+
+      const sourceVal = sourceEl.value;
+      const accountVal = accountEl.value.trim();
+      const nameVal = nameEl.value.trim();
+      const typeVal = typeEl.value;
+      const memoVal = memoEl.value.trim();
+
+      // 1) source account
+      if (!sourceVal || sourceVal === 'frozen') {
+        showTransferError('Please choose an active source account.', 'transfer-from-account');
+        return;
+      }
+      // 2) recipient account number: exactly 12 digits, and not the source account itself
+      if (!/^[0-9]{12}$/.test(accountVal)) {
+        showTransferError('The recipient account number must be exactly 12 digits.', 'transfer-recipient-account');
+        return;
+      }
+      if (accountVal === SOURCE_ACCOUNT_NUMBERS[sourceVal]) {
+        showTransferError('The recipient account must be different from the source account.', 'transfer-recipient-account');
+        return;
+      }
+      // 3) recipient name
+      if (nameVal.length < 3 || !/^[\p{L} .'-]+$/u.test(nameVal)) {
+        showTransferError('Please enter the recipient full name (letters and spaces, at least 3 characters).', 'transfer-recipient-name');
+        return;
+      }
+      // 4) transfer type
+      if (ALLOWED_TRANSFER_TYPES.indexOf(typeVal) === -1) {
+        showTransferError('Please choose a valid transfer type.', 'transfer-type');
+        return;
+      }
+      // 5) amount: number, at least 0.01, 2 decimals max
+      const moneyError = checkMoneyAmount(amountEl.value, 0.01);
+      if (moneyError) {
+        showTransferError(moneyError, 'transfer-amount');
+        return;
+      }
+      const amountVal = Number(amountEl.value);
+
+      // 6) limits (prototype simulation - the backend must enforce them for real)
+      if (amountVal > SINGLE_TRANSFER_LIMIT) {
+        showTransferError('Limit exceeded: the maximum for a single transaction is ' + formatEGP(SINGLE_TRANSFER_LIMIT) + '.', 'transfer-amount');
+        return;
+      }
+      if (round2(dailyUsed + amountVal) > DAILY_TRANSFER_LIMIT) {
+        showTransferError('Limit exceeded: this transfer is over your daily limit of ' + formatEGP(DAILY_TRANSFER_LIMIT) +
+          '. Remaining today: ' + formatEGP(DAILY_TRANSFER_LIMIT - dailyUsed) + '.', 'transfer-amount');
+        return;
+      }
+      if (round2(monthlyUsed + amountVal) > MONTHLY_TRANSFER_LIMIT) {
+        showTransferError('Limit exceeded: this transfer is over your monthly limit of ' + formatEGP(MONTHLY_TRANSFER_LIMIT) +
+          '. Remaining this month: ' + formatEGP(MONTHLY_TRANSFER_LIMIT - monthlyUsed) + '.', 'transfer-amount');
+        return;
+      }
+
+      // 7) fee and total debit
+      const sourceText = sourceEl.options[sourceEl.selectedIndex].text;
+      const typeText = typeEl.options[typeEl.selectedIndex].text;
+      const result = calculateTransferFee(amountVal, accountVal);
+      const totalDebit = round2(amountVal + result.fee);
+
+      currentPendingTransfer = {
+        source: sourceText,
+        recipientAccount: accountVal,
+        recipientName: nameVal,
+        network: typeText,
+        amount: amountVal,
+        description: memoVal || 'None provided',
+        fee: result.fee,
+        isOwn: result.isOwn,
+        totalDebit: totalDebit,
+        confirmed: false
+      };
+
+      // 8) fill the review window (the user checks everything BEFORE confirming)
+      document.getElementById('reviewSourceAccount').textContent = sourceText;
+      document.getElementById('reviewRecipientName').textContent = nameVal;
+      document.getElementById('reviewRecipientIban').textContent = accountVal;
+      document.getElementById('reviewNetwork').textContent = typeText;
+      document.getElementById('reviewDescription').textContent = memoVal || 'None provided';
+      document.getElementById('reviewAmount').textContent = formatEGP(amountVal);
+      document.getElementById('reviewFee').textContent = formatEGP(result.fee);
+      document.getElementById('reviewTotalDebit').textContent = formatEGP(totalDebit);
+      document.getElementById('reviewFeeExplanation').textContent =
+        result.isOwn ? '(Own Account Transfer - Free)' : '(0.1% Standard Fee, min 0.50, max 20)';
+
+      openTransferReviewModal();
+    }
+
+    // "Confirm Transfer" button in the review window
+    function executeSimulatedTransfer() {
+      if (!currentPendingTransfer || currentPendingTransfer.confirmed) return;
+      currentPendingTransfer.confirmed = true;
+
+      // The confirmed amount counts toward today's and this month's totals (the fee does not)
+      dailyUsed = round2(dailyUsed + currentPendingTransfer.amount);
+      monthlyUsed = round2(monthlyUsed + currentPendingTransfer.amount);
+      renderTransferLimits();
+
+      const randomRef = 'TXN-' + Math.floor(100000 + Math.random() * 900000) + '-BTS';
+      const now = new Date();
+      const timeStr = 'Today, ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      document.getElementById('successRefId').textContent = randomRef;
+      document.getElementById('successDebitedAmount').textContent = formatEGP(currentPendingTransfer.totalDebit);
+      document.getElementById('successTimestamp').textContent = timeStr;
+
+      document.getElementById('transferReviewStep').classList.add('hidden');
+      document.getElementById('transferSuccessStep').classList.remove('hidden');
+    }
+
+    // "Done / Back to Transfers" button: close the window and clear the form
+    function resetTransferAfterSuccess() {
+      closeTransferReviewModal();
+      const form = document.getElementById('transferForm');
+      if (form) form.reset();
+      currentPendingTransfer = null;
+      hideTransferError();
+    }
+
+    renderTransferLimits();
+    updateQuotaBanner();
+    updateNewAccountHint();
+
+    // A customer who registered on index.html is greeted with the name entered at Sign Up.
+    // PROTOTYPE: the rest of this page still shows the shared demo data (no real account is created).
+    (function () {
+      const session = (window.BTSSession ? BTSSession.get() : null);
+      if (!session || !session.name) return;
+      const name = session.name;
+      const initials = name.split(' ').filter(Boolean).map(function (n) { return n[0]; }).join('').substring(0, 2).toUpperCase();
+      ['headerUserName', 'dropdownUserName', 'profileDisplayFullName', 'bannerRecordName'].forEach(function (id) {
+        document.getElementById(id).textContent = name;
+      });
+      document.getElementById('inputProfileName').value = name;
+      document.getElementById('dashboardGreeting').textContent = 'Good morning, ' + name.split(' ')[0] + '!';
+      document.getElementById('headerUserInitials').textContent = initials;
+      document.getElementById('profileBigAvatar').textContent = initials;
+    })();
+  </script>
+<script>
+    // STATEMENTS: filters + pagination
+    let statementPage = 1;
+
+    function getFilteredStatementRows() {
+      const start = document.getElementById('statementStartDate').value;   // yyyy-mm-dd or ''
+      const end = document.getElementById('statementEndDate').value;
+      const type = document.getElementById('statementTypeFilter').value;
+      const rows = document.querySelectorAll('#statementTableBody tr.statement-row');
+      const result = [];
+      rows.forEach(function (row) {
+        const date = row.getAttribute('data-date');
+        const rowType = row.getAttribute('data-type');
+        let ok = true;
+        if (start && date < start) ok = false;
+        if (end && date > end) ok = false;
+        if (type !== 'all' && rowType !== type) ok = false;
+        if (ok) result.push(row);
+      });
+      return result;
+    }
+
+    function renderStatementTable() {
+      const allRows = document.querySelectorAll('#statementTableBody tr.statement-row');
+      allRows.forEach(function (row) { row.classList.add('hidden'); });
+
+      const filtered = getFilteredStatementRows();
+      const pageSize = parseInt(document.getElementById('statementPageSize').value, 10);
+      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      if (statementPage > totalPages) statementPage = totalPages;
+      if (statementPage < 1) statementPage = 1;
+
+      const from = (statementPage - 1) * pageSize;
+      filtered.slice(from, from + pageSize).forEach(function (row) { row.classList.remove('hidden'); });
+
+      // Summary cards follow the filtered rows (amount cell = 6th column, e.g. "+EGP 24,500.00")
+      let debits = 0, credits = 0, debitCount = 0, creditCount = 0;
+      filtered.forEach(function (row) {
+        const cell = row.children[5];
+        const m = cell ? cell.textContent.match(/([+-])\s*EGP\s*([\d,]+\.\d{2})/) : null;
+        if (!m) return;
+        const value = parseFloat(m[2].replace(/,/g, ''));
+        if (m[1] === '+') { credits += value; creditCount++; } else { debits += value; debitCount++; }
+      });
+      const money = function (n) { return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+      const net = credits - debits;
+      document.getElementById('statementTotalDebits').textContent = '-EGP ' + money(debits);
+      document.getElementById('statementDebitCount').textContent = debitCount + ' transaction(s) recorded';
+      document.getElementById('statementTotalCredits').textContent = '+EGP ' + money(credits);
+      document.getElementById('statementCreditCount').textContent = creditCount + ' incoming credit(s)';
+      document.getElementById('statementNetPosition').textContent = (net < 0 ? '-' : '+') + 'EGP ' + money(Math.abs(net));
+      document.getElementById('statementNetNote').textContent = net < 0 ? 'Negative liquidity delta' : 'Positive liquidity delta';
+
+      document.getElementById('statementEmptyRow').classList.toggle('hidden', filtered.length > 0);
+      document.getElementById('statementPageInfo').textContent = 'Ledger Page ' + statementPage + ' of ' + totalPages;
+      document.getElementById('btn-prev-page').disabled = statementPage <= 1;
+      document.getElementById('btn-next-page').disabled = statementPage >= totalPages;
+    }
+
+    function applyStatementFilters(e) {
+      e.preventDefault();
+      const start = document.getElementById('statementStartDate').value;
+      const end = document.getElementById('statementEndDate').value;
+      const errorEl = document.getElementById('statementFilterError');
+      if (start && end && start > end) {
+        errorEl.textContent = 'The start date must be before the end date.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      errorEl.classList.add('hidden');
+      statementPage = 1;
+      renderStatementTable();
+    }
+
+    function resetStatementFilters() {
+      document.getElementById('statementFilterForm').reset();
+      document.getElementById('statementFilterError').classList.add('hidden');
+      statementPage = 1;
+      renderStatementTable();
+    }
+
+    function changeStatementPageSize() {
+      statementPage = 1;
+      renderStatementTable();
+    }
+
+    function goToStatementPage(step) {
+      statementPage = statementPage + step;
+      renderStatementTable();
+    }
+
+    renderStatementTable();
+  </script>
+
+
+</body></html>
