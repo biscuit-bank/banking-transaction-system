@@ -6,7 +6,7 @@ import com.depi.bank.domain.Transaction;
 import com.depi.bank.domain.User;
 import com.depi.bank.exception.BankException;
 import com.depi.bank.exception.ErrorCode;
-import com.depi.bank.repository.AccountRepository;
+import com.depi.bank.repository.CoreAccountRepository;
 import com.depi.bank.repository.TransactionRepository;
 import com.depi.bank.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
 @Service
 public class AdminDashboardService {
 
-    private final AccountRepository accountRepository;
+    private final CoreAccountRepository accountRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     private final Clock clock;
 
-    public AdminDashboardService(AccountRepository accountRepository,
+    public AdminDashboardService(CoreAccountRepository accountRepository,
                                  UserRepository userRepository,
                                  TransactionRepository transactionRepository,
                                  Clock clock) {

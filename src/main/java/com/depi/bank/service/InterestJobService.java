@@ -3,7 +3,7 @@ package com.depi.bank.service;
 import com.depi.bank.domain.Account;
 import com.depi.bank.domain.AuditLog;
 import com.depi.bank.domain.Transaction;
-import com.depi.bank.repository.AccountRepository;
+import com.depi.bank.repository.CoreAccountRepository;
 import com.depi.bank.repository.AuditLogRepository;
 import com.depi.bank.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
@@ -27,12 +27,12 @@ public class InterestJobService {
     private static final BigDecimal FD_36M_RATE = new BigDecimal("0.1775");
     private static final BigDecimal TWELVE = BigDecimal.valueOf(12);
 
-    private final AccountRepository accountRepository;
+    private final CoreAccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final AuditLogRepository auditLogRepository;
     private final Clock clock;
 
-    public InterestJobService(AccountRepository accountRepository,
+    public InterestJobService(CoreAccountRepository accountRepository,
                               TransactionRepository transactionRepository,
                               AuditLogRepository auditLogRepository,
                               Clock clock) {

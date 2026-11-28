@@ -4,7 +4,7 @@ import com.depi.bank.domain.Account;
 import com.depi.bank.domain.AuditLog;
 import com.depi.bank.exception.BankException;
 import com.depi.bank.exception.ErrorCode;
-import com.depi.bank.repository.AccountRepository;
+import com.depi.bank.repository.CoreAccountRepository;
 import com.depi.bank.repository.AuditLogRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,11 +15,11 @@ import java.time.Instant;
 @Service
 public class AccountFreezeService {
 
-    private final AccountRepository accountRepository;
+    private final CoreAccountRepository accountRepository;
     private final AuditLogRepository auditLogRepository;
     private final Clock clock;
 
-    public AccountFreezeService(AccountRepository accountRepository,
+    public AccountFreezeService(CoreAccountRepository accountRepository,
                                 AuditLogRepository auditLogRepository,
                                 Clock clock) {
         this.accountRepository = accountRepository;

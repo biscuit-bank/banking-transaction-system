@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "accounts", indexes = {
-        @Index(name = "idx_accounts_number", columnList = "account_number", unique = true),
-        @Index(name = "idx_accounts_user", columnList = "user_id")
+@Entity(name = "CoreAccount")
+@Table(name = "core_accounts", indexes = {
+        @Index(name = "idx_core_accounts_number", columnList = "account_number", unique = true),
+        @Index(name = "idx_core_accounts_user", columnList = "user_id")
 })
 public class Account {
 

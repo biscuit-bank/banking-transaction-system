@@ -4,7 +4,7 @@ import com.depi.bank.domain.Account;
 import com.depi.bank.domain.Transaction;
 import com.depi.bank.exception.BankException;
 import com.depi.bank.exception.ErrorCode;
-import com.depi.bank.repository.AccountRepository;
+import com.depi.bank.repository.CoreAccountRepository;
 import com.depi.bank.repository.TransactionRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,11 +19,11 @@ import java.time.LocalDate;
 public class StatementService {
 
     private final TransactionRepository transactionRepository;
-    private final AccountRepository accountRepository;
+    private final CoreAccountRepository accountRepository;
     private final Clock clock;
 
     public StatementService(TransactionRepository transactionRepository,
-                            AccountRepository accountRepository,
+                            CoreAccountRepository accountRepository,
                             Clock clock) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;

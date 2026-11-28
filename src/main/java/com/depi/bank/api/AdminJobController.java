@@ -21,7 +21,7 @@ public class AdminJobController {
 
     @PostMapping({"/jobs/monthly-interest", "/jobs/run-monthly-interest"})
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity> triggerMonthlyInterestJob(Authentication authentication,
+    public ResponseEntity<Map<String, Object>> triggerMonthlyInterestJob(Authentication authentication,
                                                                          HttpServletRequest request) {
         String adminIdentifier = (authentication != null) ? authentication.getName() : "admin";
         return ResponseEntity.ok(
